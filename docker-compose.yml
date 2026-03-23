@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: nn_auth_db
+    environment:
+      POSTGRES_USER: nn_user
+      POSTGRES_PASSWORD: nn_password
+      POSTGRES_DB: nn_auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - nn_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nn_user -d nn_auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: nn_auth_mailpit
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI — http://localhost:8025
+    restart: unless-stopped
+
+volumes:
+  nn_auth_data:
