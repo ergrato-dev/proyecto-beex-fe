@@ -5,14 +5,13 @@
  * ¿Impacto? El userId SIEMPRE viene de req.user (token), nunca de req.params o req.body.
  */
 
-import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../../middlewares/auth.middleware.js';
+import type { Request, Response, NextFunction } from 'express';
 import * as usersService from './users.service.js';
 
 // ¿Qué? Retorna el perfil del usuario actualmente autenticado.
 // ¿Para qué? Permitir al frontend mostrar datos del usuario sin exponer otros perfiles.
 export async function getMe(
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {

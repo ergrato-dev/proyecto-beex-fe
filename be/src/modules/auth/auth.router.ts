@@ -5,7 +5,7 @@
  * ¿Impacto? Una ruta mal configurada puede exponer endpoints sin validación o sin auth.
  */
 
-import { Router } from 'express';
+import { Router, type IRouter } from 'express';
 import * as authController from './auth.controller.js';
 import { authenticate } from '../../middlewares/auth.middleware.js';
 import { validate } from '../../middlewares/validate.middleware.js';
@@ -18,7 +18,7 @@ import {
   resetPasswordSchema,
 } from './auth.schema.js';
 
-const router = Router();
+const router: IRouter = Router();
 
 // POST /api/v1/auth/register — Registro de nuevo usuario
 // validate(registerSchema) garantiza que el body sea correcto antes de llegar al controller

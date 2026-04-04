@@ -141,6 +141,59 @@ Cada archivo nuevo debe incluir un comentario de cabecera al inicio:
 
 ## 4. Reglas de Entorno y Herramientas — OBLIGATORIAS
 
+### 4.0 REGLA CERO — Auditoría de seguridad antes de instalar cualquier paquete
+
+> ⚠️ **OBLIGATORIO sin excepción.** Antes de ejecutar `pnpm add <paquete>`, verificar que la versión a instalar no tenga CVEs conocidos.
+
+El ecosistema npm ha sido vector de ataques de supply chain de alto impacto (event-stream 2018, ua-parser-js 2021, node-ipc 2022, polyfill.io 2024, axios 1.13.x 2026). Paquetes de uso masivo son objetivos prioritarios porque un solo compromiso afecta millones de proyectos.
+
+#### Protocolo de instalación de paquetes
+
+```bash
+# PASO 1 — Consultar el registro de vulnerabilidades ANTES de instalar
+# Fuentes de consulta obligatorias (usar al menos una):
+#   https://security.snyk.io/package/npm/<nombre-paquete>
+#   https://www.npmjs.com/advisories
+#   https://osv.dev/?ecosystem=npm
+
+# PASO 2 — Verificar versiones afectadas vs versión a instalar
+# Buscar la columna de vulnerabilidades por versión en Snyk
+
+# PASO 3 — Instalar SOLO si la versión no tiene CVEs
+# Siempre usar versión exacta, nunca rangos ^ ni ~
+pnpm add paquete@X.Y.Z      # ✅ versión exacta verificada
+
+# PASO 4 — Documentar en el commit qué se verificó
+# chore(deps): add axios 1.14.0
+# For: http client for API communication
+# Impact: verified CVE-free on security.snyk.io (1.13.x had 1 High CVE)
+```
+
+#### Versiones con CVE conocidos en este proyecto — historial
+
+| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                           | Versión segura instalada |
+| ------------ | ------------------- | --------------------- | ---------------------------------------------------------- | ------------------------ |
+| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                          | `1.14.0` ✅              |
+| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                  | `4.2.1` ✅               |
+| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection | `8.0.4` ✅               |
+
+> Actualizar esta tabla cada vez que se detecte o resuelva una vulnerabilidad en una dependencia del proyecto.
+
+#### Señales de alerta — auditar inmediatamente si
+
+- El paquete tiene actividad inusual reciente en releases (versión publicada y retirada rápidamente)
+- El mantenedor cambió recientemente
+- `pnpm audit` reporta advertencias tras una actualización
+- GitHub/npm muestra un advisory de seguridad
+
+```bash
+# Auditar dependencias actuales en cualquier momento
+cd be && pnpm audit
+cd fe && pnpm audit
+```
+
+---
+
 ### 4.1 Node.js — SIEMPRE usar `pnpm`
 
 ```bash
@@ -419,6 +472,36 @@ For: Prevent confusing 500 errors when users try to refresh after 7 days
 Impact: Improves UX by redirecting to login instead of showing error page"
 ```
 
+### 7.5 Estrategia de ramas — OBLIGATORIO
+
+Este proyecto trabaja siempre con **dos ramas únicas**:
+
+| Rama   | Propósito                                                     |
+| ------ | ------------------------------------------------------------- |
+| `main` | Código estable y verificado — solo recibe merges desde `dev`  |
+| `dev`  | Rama de desarrollo activo — todos los commits nuevos van aquí |
+
+#### Reglas de flujo
+
+```bash
+# Todo trabajo nuevo comienza desde dev
+git checkout dev
+
+# Commits del día a día → siempre sobre dev
+git add .
+git commit -m "feat(auth): ..."
+
+# Cuando dev está estable y los tests pasan → merge a main
+git checkout main
+git merge dev --no-ff -m "chore(release): merge dev into main"
+git checkout dev
+```
+
+- **NUNCA** hacer commits directamente en `main`
+- **NUNCA** hacer `git push --force` en ninguna de las dos ramas
+- `main` debe estar siempre en estado ejecutable (`pnpm dev` + `pnpm test` pasan)
+- Los merges a `main` deben hacerse solo cuando `dev` tiene todos los tests en verde
+
 ---
 
 ## 8. Calidad — NO es Opcional, es OBLIGACIÓN
@@ -490,6 +573,7 @@ cd fe && pnpm format        # Formatear código
 - [ ] ¿El commit sigue Conventional Commits con What/For/Impact?
 - [ ] ¿Las variables sensibles están en `.env` y no hardcodeadas?
 - [ ] ¿El `.env.example` se actualizó si se agregaron nuevas variables?
+- [ ] **Si se agregó/actualizó un paquete:** ¿se auditó en security.snyk.io antes de instalar? (Regla 4.0)
 
 ---
 
@@ -781,6 +865,7 @@ Para emails en desarrollo sin Docker, usar [Mailpit standalone](https://mailpit.
 8. **Conventional Commits** — Sugerir mensajes de commit con formato correcto.
 9. **Seguridad primero** — Nunca almacenar passwords en texto plano, nunca exponer secrets.
 10. **Legibilidad sobre cleverness** — El código debe ser entendible para un aprendiz.
+11. **Auditoría antes de sugerir `pnpm add`** — Antes de recomendar la instalación de cualquier paquete, verificar en `security.snyk.io` que la versión no tenga CVEs. Indicar siempre la versión exacta verificada, nunca rangos `^` ni `~`. Si hay CVEs en la última versión, señalar la última versión segura disponible.
 
 ---
 

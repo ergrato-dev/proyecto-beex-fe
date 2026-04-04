@@ -11,14 +11,9 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { UnauthorizedError } from './error.middleware.js';
 
-// ¿Qué? Extensión del tipo Request para incluir el usuario autenticado.
-// ¿Para qué? Tener acceso a req.user en los controllers de rutas protegidas.
-export interface AuthRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-  };
-}
+// ¿Qué? El tipo de req.user está definido globalmente en src/types/express.d.ts.
+// ¿Para qué? Usar module augmentation en vez de una interfaz separada evita
+//   incompatibilidades de tipos con los overloads de Router de Express 5.
 
 // ¿Qué? Payload esperado en el JWT.
 interface TokenPayload {
@@ -48,7 +43,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
       return;
     }
 
-    (req as AuthRequest).user = { id: payload.sub, email: payload.email };
+    req.user = { id: payload.sub, email: payload.email };
     next();
   } catch {
     next(new UnauthorizedError('Invalid or expired token'));

@@ -8,7 +8,6 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service.js';
-import type { AuthRequest } from '../../middlewares/auth.middleware.js';
 import type {
   RegisterInput,
   LoginInput,
@@ -56,7 +55,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
 // ¿Qué? Cambia la contraseña del usuario autenticado.
 // ¿Para qué? El userId se toma del token JWT (req.user) — nunca del body.
 export async function changePassword(
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
