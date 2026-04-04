@@ -171,11 +171,12 @@ pnpm add paquete@X.Y.Z      # ✅ versión exacta verificada
 
 #### Versiones con CVE conocidos en este proyecto — historial
 
-| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                           | Versión segura instalada |
-| ------------ | ------------------- | --------------------- | ---------------------------------------------------------- | ------------------------ |
-| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                          | `1.14.0` ✅              |
-| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                  | `4.2.1` ✅               |
-| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection | `8.0.4` ✅               |
+| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                                          | Versión / Fix aplicado |
+| ------------ | ------------------- | --------------------- | ------------------------------------------------------------------------- | ----------------------- |
+| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                                         | `1.14.0` ✅             |
+| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                                 | `4.2.1` ✅              |
+| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection                | `8.0.4` ✅              |
+| `esbuild`    | `≤ 0.24.2`          | Moderate              | GHSA-67mh-4wv8-2f99 — dev server CORS bypass (acepta peticiones externas) | `pnpm.overrides "esbuild": "0.27.7"` + `vitest@4.1.2` + `vite@8.0.3` (BE) ✅ |
 
 > Actualizar esta tabla cada vez que se detecte o resuelva una vulnerabilidad en una dependencia del proyecto.
 
@@ -216,7 +217,70 @@ yarn install       # ← PROHIBIDO
 
 Si algún tutorial o documentación sugiere `npm`, reemplazar por el equivalente `pnpm`.
 
-### 4.2 Variables de entorno
+### 4.2 ⛔ Regla de Oro — Pinning de dependencias (OBLIGATORIO)
+
+> **Versiones flotantes = builds no reproducibles = riesgo de CVE silencioso.**
+
+#### Prohibido en `package.json`
+
+```json
+// ❌ NUNCA — rangos de versión flotantes
+"tailwindcss": "^4.1.0",
+"vite": "~6.2.0",
+"react": ">=19.0.0",
+"esbuild": "*",
+"axios": "latest"
+```
+
+#### Obligatorio — versiones exactas siempre
+
+```json
+// ✅ SIEMPRE — versión exacta, sin prefijos
+"tailwindcss": "4.1.0",
+"vite": "8.0.3",
+"react": "19.1.0",
+"esbuild": "0.27.7"
+```
+
+#### Para dependencias transitivas vulnerables → `pnpm.overrides`
+
+Cuando una dependencia de tercer nivel (transitiva) tiene un CVE y no se puede actualizar el padre:
+
+```json
+// ✅ Correcto — forzar versión segura de transitive dep
+"pnpm": {
+  "overrides": {
+    "esbuild": "0.27.7"
+  }
+}
+```
+
+Caso real de este proyecto: `drizzle-kit` traía `esbuild@0.18.20` y `0.19.12` (CVE GHSA-67mh-4wv8-2f99). Se resolvió con `pnpm.overrides` + upgrade de `vitest` + `vite` a versiones que usan `esbuild ≥ 0.25.0`.
+
+#### Cómo pnpm enforce versiones exactas automáticamente
+
+```bash
+# Global (ya configurado en ~/.config/pnpm/rc)
+save-exact=true
+
+# También en cada workspace del repo (.npmrc)
+save-exact=true
+```
+
+Con `save-exact=true`, cualquier `pnpm add` guarda la versión instalada exacta, nunca con `^` ni `~`.
+
+#### Motivación
+
+| Riesgo | Detalle |
+|--------|---------|
+| CVEs silenciosos | Un rango como `^4.0.0` puede instalar `4.9.9` con vulnerabilidades sin aviso |
+| Builds no reproducibles | Dos `pnpm install` en fechas distintas → resultados distintos |
+| Supply-chain attacks | Una actualización automática puede inyectar código malicioso |
+| Auditorías inútiles | No se puede fijar qué versión se ejecuta en producción |
+
+---
+
+### 4.3 Variables de entorno
 
 - NUNCA hardcodear credenciales, URLs de base de datos, secrets, o configuración sensible
 - Usar archivos `.env` (no versionados en git)
