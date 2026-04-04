@@ -415,5 +415,13 @@ ejercicio formativo en el marco del SENA.
 
 ## 📄 Licencia
 
-Proyecto educativo — SENA. Uso exclusivamente académico.
-Ver [`LICENSE`](LICENSE) — prohibida redistribución, uso comercial y contribuciones externas.
+[![CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+Este proyecto está publicado bajo la licencia **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**.
+
+- ✅ Puedes **compartir** y **adaptar** el material (incluyendo forks educativos).
+- ❌ **No** puedes usarlo con fines comerciales.
+- 🔁 Si adaptas o distribuyes el material, debes hacerlo bajo la **misma licencia**.
+- 📌 Siempre debes dar **crédito al autor original** (ergrato-dev).
+
+Ver [`LICENSE`](LICENSE) para el texto completo o visita [creativecommons.org/licenses/by-nc-sa/4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
