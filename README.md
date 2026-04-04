@@ -1,4 +1,6 @@
-# 🔐 NN Auth System — Express Edition
+<div align="center">
+  <img src="_assets/banner.svg" alt="NN Auth System — Express Edition" width="100%">
+</div>
 
 <!--
   ¿Qué? Documentación principal del proyecto NN Auth System (Express Edition).
@@ -414,3 +416,4 @@ ejercicio formativo en el marco del SENA.
 ## 📄 Licencia
 
 Proyecto educativo — SENA. Uso exclusivamente académico.
+Ver [`LICENSE`](LICENSE) — prohibida redistribución, uso comercial y contribuciones externas.
