@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Archivo: .coderabbit.yaml
+# Descripción: Configuración de CodeRabbit para el proyecto NN Auth System.
+# ¿Para qué? Automatizar la revisión de código en PRs vigilando las reglas
+#   del proyecto: seguridad, tipado TypeScript, comentarios pedagógicos y diseño.
+# ¿Impacto? Sin esta config CodeRabbit usa los defaults genéricos y no conoce
+#   las convenciones específicas del proyecto (e.g. no gradientes, pnpm, Regla 0).
+
+language: "es"
+early_access: false
+
+reviews:
+  # assertive = más feedback detallado — adecuado para proyecto educativo
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  review_status: true
+  review_details: true
+  commit_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  poem: false
+
+  # Excluir archivos generados, lockfiles y assets binarios de la revisión
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/*.lock"
+    - "!**/pnpm-lock.yaml"
+    - "!**/*.png"
+    - "!**/*.svg"
+    - "!**/*.ico"
+
+  # Instrucciones específicas por ruta — enseñan a CodeRabbit las reglas del proyecto
+  path_instructions:
+    - path: "be/src/**/*.ts"
+      instructions: |
+        Revisar con las reglas del proyecto NN Auth System backend:
+        - Todo código en inglés; comentarios y JSDoc en español con ¿Qué? ¿Para qué? ¿Impacto?.
+        - Patrón obligatorio: Router → Controller → Service → DB.
+        - Controllers son capa delgada: solo extraen datos del req, llaman al service y formatean el res.
+        - Toda la lógica de negocio va en el service, nunca en el controller.
+        - Validación de inputs con zod en TODOS los endpoints (nunca confiar en datos del cliente).
+        - Errores deben lanzarse con clases tipadas (AppError, ConflictError, UnauthorizedError).
+        - Las contraseñas NUNCA se almacenan en texto plano ni se exponen en responses.
+        - Los JWT secrets vienen de variables de entorno (config.ts), nunca hardcodeados.
+        - Revisar que todas las funciones tengan tipos de retorno explícitos.
+        - Verificar que rutas protegidas tengan el middleware authenticate.
+        - Las nuevas dependencias deben verificarse en security.snyk.io antes de usarse.
+        - Usar pnpm, nunca npm ni yarn.
+
+    - path: "be/src/modules/*/**.ts"
+      instructions: |
+        Módulos de la API — verificar:
+        - El archivo .schema.ts define los zod schemas y tipos inferidos.
+        - El archivo .service.ts contiene TODA la lógica de negocio.
+        - El archivo .controller.ts es thin layer (máx ~10 líneas por handler).
+        - El archivo .router.ts registra las rutas con los middlewares correctos.
+        - Endpoints de auth no revelan si un email existe en mensajes de error (OWASP).
+
+    - path: "be/src/tests/**/*.ts"
+      instructions: |
+        Tests del backend — verificar:
+        - Cada endpoint tiene tests de happy path Y casos de error.
+        - Los tests limpian la BD entre ejecuciones (setup.ts lo hace).
+        - No hay datos hardcodeados de producción (credenciales, URLs reales).
+        - Se usa supertest para tests HTTP de integración.
+        - Cobertura mínima esperada: 80% en módulos de lógica de negocio.
+
+    - path: "fe/src/**/*.{ts,tsx}"
+      instructions: |
+        Revisar con las reglas del diseño system del proyecto:
+        - PROHIBIDO usar gradientes CSS (bg-gradient-to-*, from-*, to-*).
+        - Tipografía exclusivamente sans-serif (font-sans, nunca font-serif ni font-mono en UI).
+        - Botones de acción SIEMPRE alineados a la derecha (justify-end), nunca centrados.
+        - Dark mode obligatorio en TODOS los elementos (siempre incluir clase dark:).
+        - Transiciones suaves en hover/focus (transition-colors duration-200).
+        - Bordes sutiles (border border-gray-200 dark:border-gray-700).
+        - Mobile-first: verificar breakpoints responsive.
+        - Accesibilidad: labels vinculados a inputs, aria-invalid en errores, role="alert" en feedback.
+        - Componentes funcionales con hooks, nunca clases.
+        - Estado global solo via AuthContext; no useState global suelto.
+        - Llamadas HTTP solo en api/auth.ts, nunca inline axios en componentes.
+        - Todo código en inglés; comentarios en español con ¿Qué? ¿Para qué? ¿Impacto?.
+
+    - path: "fe/src/pages/**/*.tsx"
+      instructions: |
+        Páginas del frontend — verificar:
+        - Patrón estándar: formData, error, isLoading gestionados con useState.
+        - Los errores se limpian cuando el usuario escribe (setError(null) en handleChange).
+        - Loading state visible durante operaciones asíncronas (disabled + spinner en botón).
+        - Feedback visual de éxito/error con el componente Alert.
+        - Rutas protegidas usan el componente ProtectedRoute.
+        - Formularios tienen validación del lado cliente antes de llamar a la API.
+
+    - path: "fe/src/components/**/*.tsx"
+      instructions: |
+        Componentes UI — verificar:
+        - Componentes reutilizables exportados desde fe/src/components/ui/.
+        - Props tipadas con interface TypeScript.
+        - Sin lógica de negocio — solo presentación.
+        - Soporte completo de accesibilidad (aria-*, role, htmlFor).
+
+    - path: ".github/**"
+      instructions: |
+        Archivos de configuración de GitHub y Copilot:
+        - Las instrucciones deben estar en español (sección de documentación del proyecto).
+        - Los prompts deben seguir la estructura definida en copilot-instructions.md.
+
+  auto_review:
+    enabled: true
+    drafts: false
+    # Solo revisar automáticamente PRs de dev → main
+    base_branches:
+      - "main"
+      - "dev"
+
+  finishing_touches:
+    docstrings:
+      enabled: true
+
+knowledge_base:
+  # Usar copilot-instructions.md como guía de convenciones del proyecto
+  code_guidelines:
+    enabled: true
+    filesets:
+      - ".github/copilot-instructions.md"
+      - ".github/instructions/backend.instructions.md"
+      - ".github/instructions/frontend.instructions.md"
+
+  web_search:
+    enabled: true
+
+chat:
+  auto_reply: true
+  art: false
