@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import * as authApi from '@/api/auth';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
@@ -22,6 +23,7 @@ interface FormData {
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // ¿Qué? Extraer el token del query param: /reset-password?token=xxxx
   const token = searchParams.get('token');
@@ -45,11 +47,10 @@ export function ResetPasswordPage() {
     const newErrors: Partial<FormData> = {};
 
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(formData.newPassword)) {
-      newErrors.newPassword =
-        'Mínimo 8 caracteres, una mayúscula, una minúscula y un número.';
+      newErrors.newPassword = t('auth.resetPassword.validation.passwordWeak');
     }
     if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden.';
+      newErrors.confirmPassword = t('auth.resetPassword.validation.passwordMismatch');
     }
 
     setErrors(newErrors);
@@ -63,11 +64,11 @@ export function ResetPasswordPage() {
         <div className="w-full max-w-sm space-y-4">
           <Alert
             type="error"
-            message="El enlace de recuperación es inválido o ha expirado."
+            message={t('auth.resetPassword.invalidToken')}
           />
           <div className="flex justify-end">
             <Link to="/forgot-password">
-              <Button variant="secondary">Solicitar nuevo enlace</Button>
+              <Button variant="secondary">{t('auth.resetPassword.requestNewLink')}</Button>
             </Link>
           </div>
         </div>
@@ -90,7 +91,7 @@ export function ResetPasswordPage() {
       setServerError(
         err instanceof Error
           ? err.message
-          : 'El enlace expiró o ya fue utilizado. Solicita uno nuevo.',
+          : t('auth.resetPassword.errorDefault'),
       );
     } finally {
       setIsLoading(false);
@@ -103,7 +104,7 @@ export function ResetPasswordPage() {
         <div className="w-full max-w-sm">
           <Alert
             type="success"
-            message="Contraseña restablecida correctamente. Redirigiendo al inicio de sesión..."
+            message={t('auth.resetPassword.successMessage')}
           />
         </div>
       </div>
@@ -115,10 +116,10 @@ export function ResetPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Nueva contraseña
+            {t('auth.resetPassword.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Elige una contraseña segura para tu cuenta.
+            {t('auth.resetPassword.subtitle')}
           </p>
         </div>
 
@@ -128,32 +129,32 @@ export function ResetPasswordPage() {
           <InputField
             id="newPassword"
             name="newPassword"
-            label="Nueva contraseña"
+            label={t('auth.resetPassword.newPasswordLabel')}
             type="password"
             autoComplete="new-password"
             required
             value={formData.newPassword}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
             error={errors.newPassword}
           />
 
           <InputField
             id="confirmPassword"
             name="confirmPassword"
-            label="Confirmar contraseña"
+            label={t('auth.resetPassword.confirmPasswordLabel')}
             type="password"
             autoComplete="new-password"
             required
             value={formData.confirmPassword}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
             error={errors.confirmPassword}
           />
 
           <div className="flex justify-end pt-2">
             <Button type="submit" isLoading={isLoading}>
-              Restablecer contraseña
+              {t('auth.resetPassword.submitButton')}
             </Button>
           </div>
         </form>

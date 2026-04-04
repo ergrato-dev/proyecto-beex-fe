@@ -8,6 +8,12 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+// ¿Qué? Inicializar i18next ANTES de renderizar la app.
+// ¿Para qué? Con initImmediate: false la inicialización es síncrona — el árbol
+//   de componentes ya tiene traducciones disponibles desde el primer render.
+// ¿Impacto? Si se omite, t() retorna la clave cruda ('auth.login.title') en lugar
+//   del texto traducido durante el montaje inicial.
+import '@/i18n';
 import './index.css';
 import App from './App.tsx';
 

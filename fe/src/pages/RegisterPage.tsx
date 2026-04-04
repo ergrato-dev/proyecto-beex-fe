@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
@@ -29,6 +30,7 @@ interface FormErrors {
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -52,17 +54,16 @@ export function RegisterPage() {
     const newErrors: FormErrors = {};
 
     if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'El nombre debe tener al menos 2 caracteres.';
+      newErrors.fullName = t('auth.register.validation.fullNameMin');
     }
     if (!formData.email.includes('@')) {
-      newErrors.email = 'Ingresa un correo electrónico válido.';
+      newErrors.email = t('auth.register.validation.emailInvalid');
     }
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(formData.password)) {
-      newErrors.password =
-        'Mínimo 8 caracteres, una mayúscula, una minúscula y un número.';
+      newErrors.password = t('auth.register.validation.passwordWeak');
     }
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden.';
+      newErrors.confirmPassword = t('auth.register.validation.passwordMismatch');
     }
 
     setErrors(newErrors);
@@ -84,7 +85,7 @@ export function RegisterPage() {
       });
       navigate('/dashboard');
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : 'Error al crear la cuenta.');
+      setServerError(err instanceof Error ? err.message : t('auth.register.errorDefault'));
     } finally {
       setIsLoading(false);
     }
@@ -96,15 +97,15 @@ export function RegisterPage() {
         {/* ─── Cabecera ─── */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Crear cuenta
+            {t('auth.register.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            ¿Ya tienes cuenta?{' '}
+            {t('auth.register.hasAccount')}{' '}
             <Link
               to="/login"
               className="text-blue-600 dark:text-blue-400 hover:underline"
             >
-              Inicia sesión
+              {t('auth.register.loginLink')}
             </Link>
           </p>
         </div>
@@ -116,58 +117,58 @@ export function RegisterPage() {
           <InputField
             id="fullName"
             name="fullName"
-            label="Nombre completo"
+            label={t('auth.register.fullNameLabel')}
             type="text"
             autoComplete="name"
             required
             value={formData.fullName}
             onChange={handleChange}
-            placeholder="Ana García"
+            placeholder={t('auth.register.fullNamePlaceholder')}
             error={errors.fullName}
           />
 
           <InputField
             id="email"
             name="email"
-            label="Correo electrónico"
+            label={t('auth.emailLabel')}
             type="email"
             autoComplete="email"
             required
             value={formData.email}
             onChange={handleChange}
-            placeholder="ana@empresa.com"
+            placeholder={t('auth.emailPlaceholder')}
             error={errors.email}
           />
 
           <InputField
             id="password"
             name="password"
-            label="Contraseña"
+            label={t('auth.passwordLabel')}
             type="password"
             autoComplete="new-password"
             required
             value={formData.password}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
             error={errors.password}
           />
 
           <InputField
             id="confirmPassword"
             name="confirmPassword"
-            label="Confirmar contraseña"
+            label={t('auth.register.confirmPasswordLabel')}
             type="password"
             autoComplete="new-password"
             required
             value={formData.confirmPassword}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
             error={errors.confirmPassword}
           />
 
           <div className="flex justify-end pt-2">
             <Button type="submit" isLoading={isLoading}>
-              Crear cuenta
+              {t('auth.register.submitButton')}
             </Button>
           </div>
         </form>

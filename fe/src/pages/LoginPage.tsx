@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
@@ -21,6 +22,7 @@ interface FormData {
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<FormData>({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function LoginPage() {
       navigate('/dashboard');
     } catch (err) {
       // ¿Qué? Mensaje genérico — no revelar si el email existe (OWASP).
-      setError(err instanceof Error ? err.message : 'Credenciales incorrectas.');
+      setError(err instanceof Error ? err.message : t('auth.login.errorDefault'));
     } finally {
       setIsLoading(false);
     }
@@ -55,15 +57,15 @@ export function LoginPage() {
         {/* ─── Cabecera ─── */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Iniciar sesión
+            {t('auth.login.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            ¿No tienes cuenta?{' '}
+            {t('auth.login.noAccount')}{' '}
             <Link
               to="/register"
               className="text-blue-600 dark:text-blue-400 hover:underline"
             >
-              Regístrate
+              {t('auth.login.registerLink')}
             </Link>
           </p>
         </div>
@@ -75,25 +77,25 @@ export function LoginPage() {
           <InputField
             id="email"
             name="email"
-            label="Correo electrónico"
+            label={t('auth.emailLabel')}
             type="email"
             autoComplete="email"
             required
             value={formData.email}
             onChange={handleChange}
-            placeholder="tu@empresa.com"
+            placeholder={t('auth.emailPlaceholder')}
           />
 
           <InputField
             id="password"
             name="password"
-            label="Contraseña"
+            label={t('auth.passwordLabel')}
             type="password"
             autoComplete="current-password"
             required
             value={formData.password}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
           />
 
           {/* ¿Qué? Link de recuperación alineado a la derecha bajo el campo de contraseña. */}
@@ -102,14 +104,14 @@ export function LoginPage() {
               to="/forgot-password"
               className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              ¿Olvidaste tu contraseña?
+              {t('auth.login.forgotPassword')}
             </Link>
           </div>
 
           {/* ¿Qué? Botón de acción alineado a la derecha — regla del design system. */}
           <div className="flex justify-end pt-2">
             <Button type="submit" isLoading={isLoading}>
-              Iniciar sesión
+              {t('auth.login.submitButton')}
             </Button>
           </div>
         </form>

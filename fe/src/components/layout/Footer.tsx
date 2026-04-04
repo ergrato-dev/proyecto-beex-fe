@@ -7,42 +7,45 @@
  */
 
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function Footer() {
+  const { t } = useTranslation();
   const year = new Date().getFullYear();
 
   return (
     <footer className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 mt-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* ¿Qué? Interpolación de {{year}} — i18next reemplaza el placeholder con el año actual. */}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          © {year} NN Company. Todos los derechos reservados.
+          {t('footer.copyright', { year })}
         </p>
 
         {/* ¿Qué? Links legales obligatorios para cualquier sistema con cuentas de usuario. */}
-        <nav aria-label="Links legales" className="flex items-center gap-4">
+        <nav aria-label={t('nav.legalNavAriaLabel')} className="flex items-center gap-4">
           <Link
             to="/terminos-de-uso"
             className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
           >
-            Términos de uso
+            {t('footer.terms')}
           </Link>
           <Link
             to="/politica-privacidad"
             className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
           >
-            Privacidad
+            {t('footer.privacy')}
           </Link>
           <Link
             to="/politica-cookies"
             className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
           >
-            Cookies
+            {t('footer.cookies')}
           </Link>
           <Link
             to="/contacto"
             className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
           >
-            Contacto
+            {t('footer.contact')}
           </Link>
         </nav>
       </div>

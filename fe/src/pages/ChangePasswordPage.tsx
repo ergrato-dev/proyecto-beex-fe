@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import * as authApi from '@/api/auth';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
@@ -28,6 +29,7 @@ interface FormErrors {
 
 export function ChangePasswordPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<FormData>({
     currentPassword: '',
@@ -49,17 +51,16 @@ export function ChangePasswordPage() {
     const newErrors: FormErrors = {};
 
     if (!formData.currentPassword) {
-      newErrors.currentPassword = 'Ingresa tu contraseña actual.';
+      newErrors.currentPassword = t('auth.changePassword.validation.currentRequired');
     }
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(formData.newPassword)) {
-      newErrors.newPassword =
-        'Mínimo 8 caracteres, una mayúscula, una minúscula y un número.';
+      newErrors.newPassword = t('auth.changePassword.validation.newPasswordWeak');
     }
     if (formData.newPassword === formData.currentPassword) {
-      newErrors.newPassword = 'La nueva contraseña no puede ser igual a la actual.';
+      newErrors.newPassword = t('auth.changePassword.validation.sameAsCurrent');
     }
     if (formData.newPassword !== formData.confirmNewPassword) {
-      newErrors.confirmNewPassword = 'Las contraseñas no coinciden.';
+      newErrors.confirmNewPassword = t('auth.changePassword.validation.passwordMismatch');
     }
 
     setErrors(newErrors);
@@ -83,7 +84,7 @@ export function ChangePasswordPage() {
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       setServerError(
-        err instanceof Error ? err.message : 'No se pudo cambiar la contraseña.',
+        err instanceof Error ? err.message : t('auth.changePassword.errorDefault'),
       );
     } finally {
       setIsLoading(false);
@@ -95,17 +96,17 @@ export function ChangePasswordPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Cambiar contraseña
+            {t('auth.changePassword.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Ingresa tu contraseña actual y la nueva.
+            {t('auth.changePassword.subtitle')}
           </p>
         </div>
 
         {success ? (
           <Alert
             type="success"
-            message="Contraseña actualizada correctamente. Redirigiendo..."
+            message={t('auth.changePassword.successMessage')}
           />
         ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
@@ -114,39 +115,39 @@ export function ChangePasswordPage() {
             <InputField
               id="currentPassword"
               name="currentPassword"
-              label="Contraseña actual"
+              label={t('auth.changePassword.currentPasswordLabel')}
               type="password"
               autoComplete="current-password"
               required
               value={formData.currentPassword}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               error={errors.currentPassword}
             />
 
             <InputField
               id="newPassword"
               name="newPassword"
-              label="Nueva contraseña"
+              label={t('auth.changePassword.newPasswordLabel')}
               type="password"
               autoComplete="new-password"
               required
               value={formData.newPassword}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               error={errors.newPassword}
             />
 
             <InputField
               id="confirmNewPassword"
               name="confirmNewPassword"
-              label="Confirmar nueva contraseña"
+              label={t('auth.changePassword.confirmNewPasswordLabel')}
               type="password"
               autoComplete="new-password"
               required
               value={formData.confirmNewPassword}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               error={errors.confirmNewPassword}
             />
 
@@ -156,10 +157,10 @@ export function ChangePasswordPage() {
                 variant="secondary"
                 onClick={() => navigate('/dashboard')}
               >
-                Cancelar
+                {t('auth.changePassword.cancelButton')}
               </Button>
               <Button type="submit" isLoading={isLoading}>
-                Cambiar contraseña
+                {t('auth.changePassword.submitButton')}
               </Button>
             </div>
           </form>

@@ -8,47 +8,51 @@
 
 import { Link } from 'react-router-dom';
 import { Shield, Lock, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 
-// ¿Qué? Datos de las características del sistema para renderizar la sección de features.
-const FEATURES = [
-  {
-    icon: Shield,
-    title: 'Autenticación segura',
-    description: 'JWT con access tokens de 15 minutos y refresh tokens de 7 días.',
-  },
-  {
-    icon: Lock,
-    title: 'Contraseñas protegidas',
-    description: 'Hashing con bcrypt — nunca almacenamos contraseñas en texto plano.',
-  },
-  {
-    icon: Mail,
-    title: 'Recuperación por email',
-    description: 'Restablece tu contraseña de forma segura desde tu correo electrónico.',
-  },
-];
-
 export function LandingPage() {
+  const { t } = useTranslation();
+
+  // ¿Qué? FEATURES como constante local (no módulo-level) porque usa t().
+  // ¿Para qué? t() solo funciona dentro del contexto de un componente React —
+  //   fuera lanzaría un error o devolvería la clave sin traducir.
+  const FEATURES = [
+    {
+      icon: Shield,
+      title: t('landing.features.auth.title'),
+      description: t('landing.features.auth.description'),
+    },
+    {
+      icon: Lock,
+      title: t('landing.features.passwords.title'),
+      description: t('landing.features.passwords.description'),
+    },
+    {
+      icon: Mail,
+      title: t('landing.features.recovery.title'),
+      description: t('landing.features.recovery.description'),
+    },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       {/* ─── Hero ─── */}
       <section className="text-center mb-20">
         <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 dark:text-gray-100 mb-4 tracking-tight">
-          NN Auth System
+          {t('landing.title')}
         </h1>
         <p className="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-8">
-          Sistema de autenticación completo — registro, login, cambio y recuperación
-          de contraseña. Seguro por defecto.
+          {t('landing.subtitle')}
         </p>
 
         {/* ¿Qué? Botones de acción alineados al centro en el hero (excepción justificada: CTA principal). */}
         <div className="flex items-center justify-center gap-3">
           <Link to="/register">
-            <Button variant="primary">Crear cuenta</Button>
+            <Button variant="primary">{t('landing.ctaRegister')}</Button>
           </Link>
           <Link to="/login">
-            <Button variant="secondary">Iniciar sesión</Button>
+            <Button variant="secondary">{t('landing.ctaLogin')}</Button>
           </Link>
         </div>
       </section>
@@ -59,7 +63,7 @@ export function LandingPage() {
           id="features-heading"
           className="text-base font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center mb-10"
         >
-          Características
+          {t('landing.featuresHeading')}
         </h2>
         <div className="grid sm:grid-cols-3 gap-6">
           {FEATURES.map(({ icon: Icon, title, description }) => (

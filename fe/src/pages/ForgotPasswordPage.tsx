@@ -8,12 +8,14 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import * as authApi from '@/api/auth';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { Alert } from '@/components/ui/Alert';
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
@@ -28,7 +30,7 @@ export function ForgotPasswordPage() {
     e.preventDefault();
 
     if (!email.includes('@')) {
-      setEmailError('Ingresa un correo electrónico válido.');
+      setEmailError(t('auth.forgotPassword.validation.emailInvalid'));
       return;
     }
 
@@ -53,14 +55,14 @@ export function ForgotPasswordPage() {
         <div className="w-full max-w-sm">
           <Alert
             type="success"
-            message="Si tu correo está registrado, recibirás un enlace de recuperación en breve. Revisa también tu carpeta de spam."
+            message={t('auth.forgotPassword.successMessage')}
           />
           <div className="mt-4 flex justify-end">
             <Link
               to="/login"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
-              Volver al inicio de sesión
+              {t('auth.forgotPassword.backToLogin')}
             </Link>
           </div>
         </div>
@@ -73,11 +75,10 @@ export function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Recuperar contraseña
+            {t('auth.forgotPassword.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Ingresa tu correo y te enviaremos un enlace para restablecer tu
-            contraseña.
+            {t('auth.forgotPassword.subtitle')}
           </p>
         </div>
 
@@ -85,24 +86,24 @@ export function ForgotPasswordPage() {
           <InputField
             id="email"
             name="email"
-            label="Correo electrónico"
+            label={t('auth.emailLabel')}
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={handleChange}
-            placeholder="tu@empresa.com"
+            placeholder={t('auth.emailPlaceholder')}
             error={emailError}
           />
 
           <div className="flex justify-end gap-3 pt-2">
             <Link to="/login">
               <Button type="button" variant="secondary">
-                Volver
+                {t('auth.forgotPassword.backButton')}
               </Button>
             </Link>
             <Button type="submit" isLoading={isLoading}>
-              Enviar enlace
+              {t('auth.forgotPassword.submitButton')}
             </Button>
           </div>
         </form>

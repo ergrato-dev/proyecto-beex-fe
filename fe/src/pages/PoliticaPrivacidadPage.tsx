@@ -7,8 +7,11 @@
  */
 
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function PoliticaPrivacidadPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-[calc(100vh-8rem)] px-4 py-12 max-w-3xl mx-auto">
       <div className="mb-8">
@@ -16,7 +19,7 @@ export function PoliticaPrivacidadPage() {
           Última actualización: enero de 2026
         </p>
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-          Política de Privacidad
+          {t('legal.privacy.title')}
         </h1>
       </div>
 

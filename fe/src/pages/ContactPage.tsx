@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { Mail, MapPin, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { Alert } from '@/components/ui/Alert';
@@ -19,6 +20,7 @@ interface ContactFormData {
 }
 
 export function ContactPage() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -47,10 +49,10 @@ export function ContactPage() {
     <div className="min-h-[calc(100vh-8rem)] px-4 py-12 max-w-5xl mx-auto">
       <div className="mb-10">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          Contacto
+          {t('contact.title')}
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          ¿Tienes alguna pregunta o comentario? Estamos para ayudarte.
+          {t('contact.subtitle')}
         </p>
       </div>
 
@@ -58,7 +60,7 @@ export function ContactPage() {
         {/* Información de contacto */}
         <div className="space-y-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-            Información
+            {t('contact.infoHeading')}
           </h2>
 
           <div className="space-y-4">
@@ -69,7 +71,7 @@ export function ContactPage() {
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Correo electrónico
+                  {t('contact.emailInfoLabel')}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   contacto@nn-company.com
@@ -84,7 +86,7 @@ export function ContactPage() {
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Teléfono
+                  {t('contact.phoneLabel')}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   +57 (1) 234-5678
@@ -99,7 +101,7 @@ export function ContactPage() {
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Dirección
+                  {t('contact.addressLabel')}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Bogotá, Colombia
@@ -110,7 +112,7 @@ export function ContactPage() {
 
           <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-              Horario de atención
+              {t('contact.hoursLabel')}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Lunes a viernes: 8:00 AM – 6:00 PM
@@ -124,20 +126,20 @@ export function ContactPage() {
         {/* Formulario */}
         <div>
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-            Envíanos un mensaje
+            {t('contact.sendMessage')}
           </h2>
 
           {success ? (
             <Alert
               type="success"
-              message="Mensaje enviado. Te responderemos en un plazo de 24 horas."
+              message={t('contact.successMessage')}
             />
           ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <InputField
                 id="name"
                 name="name"
-                label="Nombre completo"
+                label={t('contact.nameLabel')}
                 type="text"
                 autoComplete="name"
                 required
@@ -149,19 +151,19 @@ export function ContactPage() {
               <InputField
                 id="email"
                 name="email"
-                label="Correo electrónico"
+                label={t('auth.emailLabel')}
                 type="email"
                 autoComplete="email"
                 required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
               />
 
               <InputField
                 id="subject"
                 name="subject"
-                label="Asunto"
+                label={t('contact.subjectLabel')}
                 type="text"
                 required
                 value={formData.subject}
@@ -174,7 +176,7 @@ export function ContactPage() {
                   htmlFor="message"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Mensaje
+                  {t('contact.messageLabel')}
                 </label>
                 <textarea
                   id="message"
@@ -194,7 +196,7 @@ export function ContactPage() {
 
               <div className="flex justify-end pt-2">
                 <Button type="submit" isLoading={isLoading}>
-                  Enviar mensaje
+                  {t('contact.submitButton')}
                 </Button>
               </div>
             </form>
