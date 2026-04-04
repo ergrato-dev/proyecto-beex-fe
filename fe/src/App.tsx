@@ -1,121 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+/**
+ * Archivo: App.tsx
+ * Descripción: Componente raíz — define el enrutamiento de la aplicación.
+ * ¿Para qué? Centralizar TODAS las rutas en un solo lugar facilita entender
+ *   la estructura de navegación del sistema de un vistazo.
+ * ¿Impacto? Una ruta mal configurada puede hacer que una página sea inaccesible
+ *   o que una ruta protegida quede expuesta sin autenticación.
+ */
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from '@/context/AuthContext';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { Layout } from '@/components/layout/Layout';
+import { LandingPage } from '@/pages/LandingPage';
+import { LoginPage } from '@/pages/LoginPage';
+import { RegisterPage } from '@/pages/RegisterPage';
+import { DashboardPage } from '@/pages/DashboardPage';
+import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
+import { ContactPage } from '@/pages/ContactPage';
+import { TerminosDeUsoPage } from '@/pages/TerminosDeUsoPage';
+import { PoliticaPrivacidadPage } from '@/pages/PoliticaPrivacidadPage';
+import { PoliticaCookiesPage } from '@/pages/PoliticaCookiesPage';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    // AuthProvider envuelve todo para que cualquier componente pueda usar useAuth().
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Rutas publicas */}
+          <Route path="/" element={<Layout><LandingPage /></Layout>} />
+          <Route path="/login" element={<Layout><LoginPage /></Layout>} />
+          <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
+          <Route path="/forgot-password" element={<Layout><ForgotPasswordPage /></Layout>} />
+          <Route path="/reset-password" element={<Layout><ResetPasswordPage /></Layout>} />
 
-      <div className="ticks"></div>
+          {/* Rutas protegidas */}
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>}
+          />
+          <Route
+            path="/change-password"
+            element={<ProtectedRoute><Layout><ChangePasswordPage /></Layout></ProtectedRoute>}
+          />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {/* Paginas legales y contacto */}
+          <Route path="/terminos-de-uso" element={<Layout><TerminosDeUsoPage /></Layout>} />
+          <Route path="/politica-privacidad" element={<Layout><PoliticaPrivacidadPage /></Layout>} />
+          <Route path="/politica-cookies" element={<Layout><PoliticaCookiesPage /></Layout>} />
+          <Route path="/contacto" element={<Layout><ContactPage /></Layout>} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <Layout>
+                <div className="min-h-[60vh] flex items-center justify-center">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    404 — Pagina no encontrada
+                  </p>
+                </div>
+              </Layout>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
