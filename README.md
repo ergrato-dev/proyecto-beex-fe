@@ -366,6 +366,8 @@ Para las reglas completas, ver [`.github/copilot-instructions.md`](.github/copil
 
 | Documento                                                                                        | Descripción                                               |
 | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| [`_docs/setup/con-docker.md`](_docs/setup/con-docker.md)                                         | Setup recomendado: Docker para infraestructura + Node.js nativo |
+| [`_docs/setup/sin-docker.md`](_docs/setup/sin-docker.md)                                         | Setup alternativo: PostgreSQL y Node.js 100% nativos      |
 | [`_docs/referencia-tecnica/architecture.md`](_docs/referencia-tecnica/architecture.md)           | Arquitectura general, flujos y decisiones técnicas        |
 | [`_docs/referencia-tecnica/api-endpoints.md`](_docs/referencia-tecnica/api-endpoints.md)         | Todos los endpoints con parámetros, respuestas y errores  |
 | [`_docs/referencia-tecnica/database-schema.md`](_docs/referencia-tecnica/database-schema.md)     | Esquema ER, tablas, columnas y migraciones                |
