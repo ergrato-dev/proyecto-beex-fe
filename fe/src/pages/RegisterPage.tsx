@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
@@ -29,7 +29,6 @@ interface FormErrors {
 
 export function RegisterPage() {
   const { register } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState<FormData>({
@@ -41,6 +40,11 @@ export function RegisterPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // ¿Qué? Estado que indica que el registro fue exitoso y el email fue enviado.
+  // ¿Para qué? Mostrar el mensaje "revisa tu correo" en lugar de redirigir al dashboard,
+  //   ya que el usuario debe verificar su email antes de poder iniciar sesión.
+  // ¿Impacto? Sin este estado el usuario iría al dashboard y encontraría un bloqueo (403).
+  const [registered, setRegistered] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -83,7 +87,7 @@ export function RegisterPage() {
         email: formData.email,
         password: formData.password,
       });
-      navigate('/dashboard');
+      setRegistered(true);
     } catch (err) {
       setServerError(err instanceof Error ? err.message : t('auth.register.errorDefault'));
     } finally {
@@ -94,6 +98,25 @@ export function RegisterPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
+
+        {/* ─── Estado de éxito: email de verificación enviado ─── */}
+        {registered ? (
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              {t('auth.register.successTitle')}
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {t('auth.register.successMessage')}
+            </p>
+            <Link
+              to="/login"
+              className="inline-block text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              {t('auth.login.title')} →
+            </Link>
+          </div>
+        ) : (
+          <>
         {/* ─── Cabecera ─── */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
@@ -172,6 +195,8 @@ export function RegisterPage() {
             </Button>
           </div>
         </form>
+          </>
+        )}
       </div>
     </div>
   );

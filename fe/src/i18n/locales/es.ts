@@ -82,6 +82,9 @@ export const es = {
       confirmPasswordLabel: 'Confirmar contraseña',
       submitButton: 'Crear cuenta',
       errorDefault: 'Error al crear la cuenta.',
+      successTitle: '¡Cuenta creada!',
+      successMessage:
+        'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada (y la carpeta de spam) para activar tu cuenta.',
       validation: {
         fullNameMin: 'El nombre debe tener al menos 2 caracteres.',
         emailInvalid: 'Ingresa un correo electrónico válido.',

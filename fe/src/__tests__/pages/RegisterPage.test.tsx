@@ -27,7 +27,6 @@ function renderRegisterPage() {
     <MemoryRouter initialEntries={['/register']}>
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<p>Dashboard</p>} />
         <Route path="/login" element={<p>Login</p>} />
       </Routes>
     </MemoryRouter>,
@@ -123,7 +122,7 @@ describe('RegisterPage', () => {
     });
   });
 
-  it('redirige al dashboard después del registro exitoso', async () => {
+  it('muestra mensaje de verificación de email tras registro exitoso', async () => {
     const user = userEvent.setup();
     mockRegisterFn.mockResolvedValue(undefined);
     renderRegisterPage();
@@ -140,7 +139,16 @@ describe('RegisterPage', () => {
     );
     await user.click(screen.getByRole('button', { name: /crear cuenta/i }));
 
-    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+    // ¿Qué? Verificar que se muestra el estado de éxito con instrucción de verificar email.
+    // ¿Para qué? El usuario NO puede iniciar sesión hasta verificar — no debe redirigir al dashboard.
+    expect(await screen.findByText('¡Cuenta creada!')).toBeInTheDocument();
+    expect(
+      screen.getByText(/te hemos enviado un correo de verificación/i),
+    ).toBeInTheDocument();
+    // ¿Qué? El formulario ya no debe estar visible tras el registro exitoso.
+    expect(
+      screen.queryByRole('button', { name: /crear cuenta/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('muestra el error del servidor cuando el email ya está registrado', async () => {

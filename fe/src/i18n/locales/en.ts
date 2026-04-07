@@ -78,6 +78,9 @@ export const en = {
       confirmPasswordLabel: 'Confirm password',
       submitButton: 'Create account',
       errorDefault: 'Error creating account.',
+      successTitle: 'Account created!',
+      successMessage:
+        'We sent you a verification email. Check your inbox (and spam folder) to activate your account.',
       validation: {
         fullNameMin: 'Name must be at least 2 characters.',
         emailInvalid: 'Enter a valid email address.',
