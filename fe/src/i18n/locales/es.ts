@@ -34,27 +34,71 @@ export const es = {
   landing: {
     title: 'NN Auth System',
     subtitle:
-      'Sistema de autenticación completo — registro, login, cambio y recuperación de contraseña. Seguro por defecto.',
-    ctaRegister: 'Crear cuenta',
+      'Registro, login, verificación de email, cambio y recuperación de contraseña. Un sistema completo construido con Express, React y las mejores prácticas de seguridad.',
+    ctaRegister: 'Comenzar ahora',
     ctaLogin: 'Iniciar sesión',
-    featuresHeading: 'Características',
+    featuresHeading: 'Características del sistema',
+    featuresSubtitle: 'Todo lo necesario para un sistema de autenticación robusto y educativo.',
     features: {
-      auth: {
-        title: 'Autenticación segura',
+      register: {
+        title: 'Registro seguro',
         description:
-          'JWT con access tokens de 15 minutos y refresh tokens de 7 días.',
+          'Validación de datos en tiempo real. Las contraseñas se almacenan hasheadas con bcrypt — nunca en texto plano.',
+      },
+      auth: {
+        title: 'Autenticación JWT',
+        description:
+          'Access tokens de 15 min y refresh tokens de 7 días. Stateless, eficiente y estándar en la industria.',
+      },
+      emailVerification: {
+        title: 'Verificación de email',
+        description:
+          'Confirma la identidad antes de activar la cuenta. Enlace de un solo uso enviado automáticamente al registro.',
       },
       passwords: {
-        title: 'Contraseñas protegidas',
+        title: 'Cambio de contraseña',
         description:
-          'Hashing con bcrypt — nunca almacenamos contraseñas en texto plano.',
+          'El usuario autenticado puede cambiar su contraseña ingresando la actual. Validación estricta en el backend.',
       },
       recovery: {
         title: 'Recuperación por email',
         description:
-          'Restablece tu contraseña de forma segura desde tu correo electrónico.',
+          'Flujo completo de forgot/reset con token de un solo uso y expiración de 1 hora.',
+      },
+      owasp: {
+        title: 'Seguridad OWASP',
+        description:
+          'Diseñado con seguridad primero: sin SQL injection, CORS configurado, inputs validados con Zod y headers con Helmet.',
       },
     },
+    stepsHeading: '¿Cómo funciona?',
+    stepsSubtitle: 'Tres pasos para empezar a usar el sistema.',
+    steps: {
+      step1: {
+        number: '01',
+        title: 'Crea tu cuenta',
+        description:
+          'Registra tu email y contraseña. Recibirás un correo para verificar y activar tu cuenta.',
+      },
+      step2: {
+        number: '02',
+        title: 'Inicia sesión',
+        description:
+          'Autentícate con tus credenciales. El sistema emitirá un access token y un refresh token.',
+      },
+      step3: {
+        number: '03',
+        title: 'Accede al sistema',
+        description: 'Con tu sesión activa, gestiona tu perfil y contraseña desde el dashboard.',
+      },
+    },
+    stackHeading: 'Stack tecnológico',
+    stackSubtitle: 'Herramientas modernas, tipadas y probadas en la industria.',
+    ctaFinalHeading: 'Listo para comenzar',
+    ctaFinalSubtitle:
+      'Crea tu cuenta y explora el sistema de autenticación completo. Aprende implementando.',
+    ctaFinalButton: 'Crear cuenta gratis',
+    logoAriaLabel: 'NN Auth System — ir al inicio',
   },
 
   // ─── Autenticación (campos y mensajes compartidos) ─────────────────────────

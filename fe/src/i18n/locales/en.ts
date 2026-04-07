@@ -34,24 +34,70 @@ export const en = {
   landing: {
     title: 'NN Auth System',
     subtitle:
-      'Complete authentication system — registration, login, password change and recovery. Secure by default.',
-    ctaRegister: 'Create account',
+      'Registration, login, email verification, password change and recovery. A complete system built with Express, React and security best practices.',
+    ctaRegister: 'Get started',
     ctaLogin: 'Sign in',
-    featuresHeading: 'Features',
+    featuresHeading: 'System features',
+    featuresSubtitle: 'Everything you need for a robust and educational authentication system.',
     features: {
+      register: {
+        title: 'Secure registration',
+        description:
+          'Real-time data validation. Passwords are stored hashed with bcrypt — never in plain text.',
+      },
       auth: {
-        title: 'Secure authentication',
-        description: 'JWT with 15-minute access tokens and 7-day refresh tokens.',
+        title: 'JWT authentication',
+        description:
+          '15-min access tokens and 7-day refresh tokens. Stateless, efficient and industry-standard.',
+      },
+      emailVerification: {
+        title: 'Email verification',
+        description:
+          'Confirms identity before activating the account. Single-use link sent automatically on registration.',
       },
       passwords: {
-        title: 'Protected passwords',
-        description: 'Hashed with bcrypt — we never store passwords in plain text.',
+        title: 'Password change',
+        description:
+          'Authenticated users can change their password by providing the current one. Strict backend validation.',
       },
       recovery: {
         title: 'Email recovery',
-        description: 'Reset your password securely via email.',
+        description: 'Full forgot/reset flow with a single-use token that expires in 1 hour.',
+      },
+      owasp: {
+        title: 'OWASP security',
+        description:
+          'Security-first design: no SQL injection, CORS configured, inputs validated with Zod and headers secured with Helmet.',
       },
     },
+    stepsHeading: 'How it works',
+    stepsSubtitle: 'Three steps to start using the system.',
+    steps: {
+      step1: {
+        number: '01',
+        title: 'Create your account',
+        description:
+          'Register your email and password. You will receive an email to verify and activate your account.',
+      },
+      step2: {
+        number: '02',
+        title: 'Sign in',
+        description:
+          'Authenticate with your credentials. The system will issue an access token and a refresh token.',
+      },
+      step3: {
+        number: '03',
+        title: 'Access the system',
+        description: 'With your active session, manage your profile and password from the dashboard.',
+      },
+    },
+    stackHeading: 'Tech stack',
+    stackSubtitle: 'Modern, typed and industry-proven tools.',
+    ctaFinalHeading: 'Ready to start',
+    ctaFinalSubtitle:
+      'Create your account and explore the complete authentication system. Learn by building.',
+    ctaFinalButton: 'Create free account',
+    logoAriaLabel: 'NN Auth System — go to home',
   },
 
   auth: {
