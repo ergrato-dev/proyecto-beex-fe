@@ -1,14 +1,15 @@
 /**
  * Archivo: modules/users/users.service.ts
  * Descripción: Lógica de negocio para operaciones sobre el perfil de usuario.
- * ¿Para qué? Obtener datos del usuario autenticado desde la BD de forma segura.
- * ¿Impacto? Solo expone datos propios — nunca datos de otros usuarios.
+ * ¿Para qué? Obtener y actualizar datos del usuario autenticado desde la BD de forma segura.
+ * ¿Impacto? Solo expone y modifica datos propios — nunca datos de otros usuarios.
  */
 
 import { eq } from 'drizzle-orm';
 import { db } from '../../db/index.js';
 import { users } from '../../db/schema.js';
 import { NotFoundError } from '../../middlewares/error.middleware.js';
+import type { UpdateLocaleInput } from '../auth/auth.schema.js';
 
 // ¿Qué? DTO de perfil de usuario — omite hashedPassword.
 export interface UserProfile {
@@ -16,6 +17,8 @@ export interface UserProfile {
   email: string;
   fullName: string;
   isActive: boolean;
+  isEmailVerified: boolean;
+  locale: string;
   createdAt: Date;
   updatedAt: Date | null;
 }
@@ -36,7 +39,42 @@ export async function getUserById(userId: string): Promise<UserProfile> {
     email: user.email,
     fullName: user.fullName,
     isActive: user.isActive,
+    isEmailVerified: user.isEmailVerified,
+    locale: user.locale,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+  };
+}
+
+// ¿Qué? Actualiza el idioma preferido del usuario en la base de datos.
+// ¿Para qué? Persistir la preferencia de locale ('es' | 'en') para que se restaure
+//   al iniciar sesión desde cualquier dispositivo (RF-008, RNF-005.5).
+// ¿Impacto? Si no se persiste en BD, el idioma se resetea al cambiar de dispositivo
+//   o al borrar localStorage — mala experiencia de usuario.
+export async function updateUserLocale(
+  userId: string,
+  data: UpdateLocaleInput,
+): Promise<UserProfile> {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (!user) throw new NotFoundError('Usuario no encontrado.');
+
+  const [updated] = await db
+    .update(users)
+    .set({ locale: data.locale, updatedAt: new Date() })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return {
+    id: updated.id,
+    email: updated.email,
+    fullName: updated.fullName,
+    isActive: updated.isActive,
+    isEmailVerified: updated.isEmailVerified,
+    locale: updated.locale,
+    createdAt: updated.createdAt,
+    updatedAt: updated.updatedAt,
   };
 }

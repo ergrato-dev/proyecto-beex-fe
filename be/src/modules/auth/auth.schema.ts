@@ -68,3 +68,22 @@ export const resetPasswordSchema = z.object({
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+// --- Schema de verificación de email ---
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, 'El token de verificación es requerido.'),
+});
+
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+
+// --- Schema de actualización de idioma (locale) ---
+// ¿Qué? Solo admite 'es' y 'en' — los dos idiomas soportados por el sistema.
+// ¿Para qué? Rechazar en el servidor cualquier valor de locale no soportado.
+// ¿Impacto? Evita almacenar locales inválidos que romperían la lógica de i18n en el FE.
+export const updateLocaleSchema = z.object({
+  locale: z.enum(['es', 'en'], {
+    errorMap: () => ({ message: "El idioma debe ser 'es' o 'en'." }),
+  }),
+});
+
+export type UpdateLocaleInput = z.infer<typeof updateLocaleSchema>;

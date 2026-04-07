@@ -2,7 +2,8 @@
  * Archivo: utils/email.ts
  * Descripción: Utilidades para el envío de correos electrónicos vía nodemailer.
  * ¿Para qué? Abstraer el envío de emails en funciones reutilizables y testeables.
- * ¿Impacto? Si falla, el flujo de recuperación de contraseña queda inutilizable.
+ * ¿Impacto? Si falla, los flujos de verificación de email y recuperación de contraseña
+ *   quedan inutilizables — el usuario no puede activar su cuenta ni recuperar acceso.
  */
 
 import nodemailer from 'nodemailer';
@@ -47,6 +48,41 @@ export async function sendPasswordResetEmail(
         <p style="margin-top:16px;color:#6b7280;font-size:14px;">
           Este enlace expira en <strong>1 hora</strong>.<br>
           Si no solicitaste este cambio, ignora este mensaje.
+        </p>
+      </div>
+    `,
+  });
+}
+
+// ¿Qué? Envía el email de verificación de cuenta al usuario recién registrado.
+// ¿Para qué? Confirmar que el usuario es el propietario real del email antes de
+//   permitirle iniciar sesión — requisito de seguridad fundamental (RF-003).
+// ¿Impacto? Sin verificación de email, cualquiera puede registrarse con el email de
+//   otra persona y acceder en su nombre. El enlace expira en 24 horas.
+export async function sendVerificationEmail(
+  toEmail: string,
+  verificationToken: string,
+): Promise<void> {
+  const verificationUrl = `${config.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+  await transporter.sendMail({
+    from: config.MAIL_FROM,
+    to: toEmail,
+    subject: 'NN Auth System — Verifica tu cuenta',
+    // ¿Qué? Se envía tanto texto plano como HTML para máxima compatibilidad.
+    text: `Haz clic en el siguiente enlace para verificar tu cuenta:\n\n${verificationUrl}\n\nEste enlace expira en 24 horas.\nSi no creaste esta cuenta, ignora este mensaje.`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Verifica tu cuenta</h2>
+        <p>Gracias por registrarte. Haz clic en el botón para activar tu cuenta:</p>
+        <a href="${verificationUrl}"
+           style="display:inline-block;padding:12px 24px;background:#16a34a;
+                  color:#fff;text-decoration:none;border-radius:6px;">
+          Verificar cuenta
+        </a>
+        <p style="margin-top:16px;color:#6b7280;font-size:14px;">
+          Este enlace expira en <strong>24 horas</strong>.<br>
+          Si no creaste esta cuenta, ignora este mensaje.
         </p>
       </div>
     `,
