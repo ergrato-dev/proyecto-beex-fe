@@ -10,7 +10,13 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../app.js';
-import { createTestUser, loginTestUser, TEST_USER } from './helpers.js';
+import {
+  createTestUser,
+  createVerifiedTestUser,
+  createVerificationToken,
+  loginTestUser,
+  TEST_USER,
+} from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // POST /api/v1/auth/register
@@ -69,9 +75,9 @@ describe('POST /api/v1/auth/register', () => {
 // POST /api/v1/auth/login
 // ---------------------------------------------------------------------------
 describe('POST /api/v1/auth/login', () => {
-  // ¿Qué? Login exitoso — retorna access token y refresh token.
+  // ¿Qué? Login exitoso — usuario con email verificado retorna access + refresh token.
   it('should login and return tokens on valid credentials', async () => {
-    await createTestUser();
+    await createVerifiedTestUser();
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({ email: TEST_USER.email, password: TEST_USER.password });
@@ -83,9 +89,21 @@ describe('POST /api/v1/auth/login', () => {
     expect(res.body.data.tokenType).toBe('bearer');
   });
 
+  // ¿Qué? Login bloqueado si el email no ha sido verificado (RF-002 RN-023).
+  // ¿Para qué? Garantizar que solo usuarios que poseen el email pueden acceder.
+  it('should return 403 when email is not verified', async () => {
+    await createTestUser(); // usuario sin verificar
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: TEST_USER.email, password: TEST_USER.password });
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+  });
+
   // ¿Qué? Contraseña incorrecta — debe retornar 401 (mensaje genérico).
   it('should return 401 with wrong password', async () => {
-    await createTestUser();
+    await createVerifiedTestUser();
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({ email: TEST_USER.email, password: 'WrongPass99' });
@@ -269,7 +287,7 @@ describe('POST /api/v1/auth/reset-password', () => {
 // GET /api/v1/users/me
 // ---------------------------------------------------------------------------
 describe('GET /api/v1/users/me', () => {
-  // ¿Qué? Usuario autenticado — retorna su perfil sin la contraseña.
+  // ¿Qué? Usuario autenticado — retorna su perfil con los campos nuevos.
   it('should return the current user profile when authenticated', async () => {
     const { accessToken } = await loginTestUser();
     const res = await request(app)
@@ -280,6 +298,9 @@ describe('GET /api/v1/users/me', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.email).toBe(TEST_USER.email);
     expect(res.body.data).not.toHaveProperty('hashedPassword');
+    // ¿Qué? isEmailVerified y locale deben estar presentes en el perfil (RF-007).
+    expect(res.body.data).toHaveProperty('isEmailVerified', true);
+    expect(res.body.data).toHaveProperty('locale', 'es');
   });
 
   // ¿Qué? Sin Authorization header — debe retornar 401.
@@ -296,5 +317,138 @@ describe('GET /api/v1/users/me', () => {
       .set('Authorization', 'Bearer not.a.real.token');
 
     expect(res.status).toBe(401);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/v1/auth/verify-email
+// ---------------------------------------------------------------------------
+describe('POST /api/v1/auth/verify-email', () => {
+  // ¿Qué? Token válido — activa la cuenta y retorna 200.
+  it('should verify email and activate account with a valid token', async () => {
+    const { token } = await createVerificationToken();
+    const res = await request(app)
+      .post('/api/v1/auth/verify-email')
+      .send({ token });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toMatch(/verificado/i);
+  });
+
+  // ¿Qué? Tras verificar, el usuario puede loguearse correctamente.
+  it('should allow login after email verification', async () => {
+    const { token } = await createVerificationToken();
+    await request(app).post('/api/v1/auth/verify-email').send({ token });
+
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: TEST_USER.email, password: TEST_USER.password });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('accessToken');
+  });
+
+  // ¿Qué? Token inexistente — debe retornar 400.
+  it('should return 400 with a non-existent token', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/verify-email')
+      .send({ token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // ¿Qué? Token ya usado — debe retornar 400.
+  it('should return 400 when token has already been used', async () => {
+    const { token } = await createVerificationToken(undefined, { used: true });
+    const res = await request(app)
+      .post('/api/v1/auth/verify-email')
+      .send({ token });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // ¿Qué? Token expirado — debe retornar 400.
+  it('should return 400 when token is expired', async () => {
+    // expiresIn negativo = ya expiró
+    const { token } = await createVerificationToken(undefined, { expiresIn: -1000 });
+    const res = await request(app)
+      .post('/api/v1/auth/verify-email')
+      .send({ token });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // ¿Qué? Body vacío — validación zod.
+  it('should return 422 with missing token field', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/verify-email')
+      .send({});
+
+    expect(res.status).toBe(422);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PATCH /api/v1/users/me/locale
+// ---------------------------------------------------------------------------
+describe('PATCH /api/v1/users/me/locale', () => {
+  // ¿Qué? Cambia el locale a 'en' — debe persistir y retornar el perfil actualizado.
+  it('should update locale to "en" and return updated profile', async () => {
+    const { accessToken } = await loginTestUser();
+    const res = await request(app)
+      .patch('/api/v1/users/me/locale')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ locale: 'en' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.locale).toBe('en');
+  });
+
+  // ¿Qué? Cambia el locale a 'es' — el idioma por defecto también debe ser válido.
+  it('should update locale to "es"', async () => {
+    const { accessToken } = await loginTestUser();
+    const res = await request(app)
+      .patch('/api/v1/users/me/locale')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ locale: 'es' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.locale).toBe('es');
+  });
+
+  // ¿Qué? Locale no soportado — el schema zod rechaza valores fuera de ['es', 'en'].
+  it('should return 422 with an unsupported locale', async () => {
+    const { accessToken } = await loginTestUser();
+    const res = await request(app)
+      .patch('/api/v1/users/me/locale')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ locale: 'fr' });
+
+    expect(res.status).toBe(422);
+  });
+
+  // ¿Qué? Sin Authorization — requiere auth igual que todos los endpoints de usuario.
+  it('should return 401 when not authenticated', async () => {
+    const res = await request(app)
+      .patch('/api/v1/users/me/locale')
+      .send({ locale: 'en' });
+
+    expect(res.status).toBe(401);
+  });
+
+  // ¿Qué? Body vacío — el campo locale es requerido.
+  it('should return 422 with missing locale field', async () => {
+    const { accessToken } = await loginTestUser();
+    const res = await request(app)
+      .patch('/api/v1/users/me/locale')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({});
+
+    expect(res.status).toBe(422);
   });
 });

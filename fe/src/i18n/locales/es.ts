@@ -105,6 +105,21 @@ export const es = {
       },
     },
 
+    verifyEmail: {
+      title: 'Verificar correo electrónico',
+      processing: 'Verificando tu correo, por favor espera...',
+      successTitle: '¡Cuenta activada!',
+      successMessage:
+        'Tu correo ha sido verificado correctamente. Ya puedes iniciar sesión.',
+      goToLogin: 'Ir al inicio de sesión',
+      errorTitle: 'Enlace inválido',
+      invalidToken:
+        'El enlace de verificación es inválido o ha expirado. Intenta registrarte nuevamente.',
+      errorDefault: 'No se pudo verificar el correo. Inténtalo de nuevo más tarde.',
+      missingToken:
+        'No se encontró el token de verificación en el enlace. Asegúrate de usar el enlace del email.',
+    },
+
     resetPassword: {
       title: 'Nueva contraseña',
       subtitle: 'Elige una contraseña segura para tu cuenta.',

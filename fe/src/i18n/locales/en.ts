@@ -101,6 +101,21 @@ export const en = {
       },
     },
 
+    verifyEmail: {
+      title: 'Verify email address',
+      processing: 'Verifying your email, please wait...',
+      successTitle: 'Account activated!',
+      successMessage:
+        'Your email has been verified successfully. You can now sign in.',
+      goToLogin: 'Go to sign in',
+      errorTitle: 'Invalid link',
+      invalidToken:
+        'The verification link is invalid or has expired. Please try registering again.',
+      errorDefault: 'Could not verify email. Please try again later.',
+      missingToken:
+        'Verification token not found in the link. Make sure you use the link from the email.',
+    },
+
     resetPassword: {
       title: 'New password',
       subtitle: 'Choose a secure password for your account.',

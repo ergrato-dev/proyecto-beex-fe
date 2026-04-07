@@ -18,6 +18,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
+import { VerifyEmailPage } from '@/pages/VerifyEmailPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { TerminosDeUsoPage } from '@/pages/TerminosDeUsoPage';
 import { PoliticaPrivacidadPage } from '@/pages/PoliticaPrivacidadPage';
@@ -35,6 +36,8 @@ function App() {
           <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
           <Route path="/forgot-password" element={<Layout><ForgotPasswordPage /></Layout>} />
           <Route path="/reset-password" element={<Layout><ResetPasswordPage /></Layout>} />
+          {/* /verify-email?token=xxx — enlace del email de activación de cuenta */}
+          <Route path="/verify-email" element={<Layout><VerifyEmailPage /></Layout>} />
 
           {/* Rutas protegidas */}
           <Route

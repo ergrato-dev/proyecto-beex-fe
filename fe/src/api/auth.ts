@@ -17,6 +17,8 @@ import type {
   RefreshTokenRequest,
   RegisterRequest,
   ResetPasswordRequest,
+  VerifyEmailRequest,
+  UpdateLocaleRequest,
   User,
 } from '@/types/auth';
 
@@ -58,5 +60,18 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<void> {
 // ¿Qué? Obtener el perfil del usuario actualmente autenticado.
 export async function getMe(): Promise<User> {
   const res = await apiClient.get<ApiResponse<User>>('/users/me');
+  return res.data.data;
+}
+
+// ¿Qué? Verificar el email usando el token del enlace de activación.
+// ¿Para qué? Activar la cuenta del usuario para que pueda iniciar sesión (RF-003).
+export async function verifyEmail(data: VerifyEmailRequest): Promise<void> {
+  await apiClient.post('/auth/verify-email', data);
+}
+
+// ¿Qué? Actualizar el idioma preferido del usuario en la BD.
+// ¿Para qué? Persistir la preferencia de locale para sincronización multi-dispositivo.
+export async function updateLocale(data: UpdateLocaleRequest): Promise<User> {
+  const res = await apiClient.patch<ApiResponse<User>>('/users/me/locale', data);
   return res.data.data;
 }

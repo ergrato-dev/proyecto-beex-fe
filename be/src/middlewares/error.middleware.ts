@@ -22,8 +22,10 @@ export class AppError extends Error {
   }
 }
 
+// ¿Qué? 422 Unprocessable Entity es el status semánticamente correcto para errores
+// de validación de datos bien formados pero con valores incorrectos (OWASP A01).
 export class ValidationError extends AppError {
-  constructor(message: string) { super(message, 400, 'VALIDATION_ERROR'); }
+  constructor(message: string) { super(message, 422, 'VALIDATION_ERROR'); }
 }
 
 export class UnauthorizedError extends AppError {
@@ -42,6 +44,13 @@ export class ConflictError extends AppError {
   constructor(message: string) { super(message, 409, 'CONFLICT'); }
 }
 
+// ¿Qué? 400 Bad Request para errores de lógica de negocio (token inválido, usado, expirado).
+// ¿Para qué? Distinguir errores de dominio (400) de errores de validación de schema (422).
+// ¿Impacto? El cliente sabe que el recurso fue encontrado pero su estado lo hace inutilizable.
+export class BadRequestError extends AppError {
+  constructor(message: string) { super(message, 400, 'BAD_REQUEST'); }
+}
+
 // ¿Qué? Middleware de Express para capturar todos los errores lanzados en la cadena.
 // ¿Para qué? Retornar respuestas de error en formato JSON consistente.
 // ¿Impacto? Debe registrarse DESPUÉS de todas las rutas en app.ts.
@@ -53,7 +62,11 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   if (err instanceof AppError) {
+    // ¿Qué? success:false mantiene el formato consistente con las respuestas exitosas.
+    // ¿Para qué? El cliente siempre puede comprobar res.body.success para saber si
+    //   la petición tuvo éxito sin necesidad de chequear el status code.
     res.status(err.statusCode).json({
+      success: false,
       error: { code: err.code, message: err.message },
     });
     return;
@@ -62,6 +75,7 @@ export function errorHandler(
   // Error no anticipado — loggear sin exponer detalles internos
   console.error('[ERROR]', err);
   res.status(500).json({
+    success: false,
     error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
   });
 }

@@ -13,6 +13,8 @@ export interface User {
   email: string;
   fullName: string;
   isActive: boolean;
+  isEmailVerified: boolean;
+  locale: string;
   createdAt: string;
 }
 
@@ -56,6 +58,16 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
+}
+
+// ¿Qué? Request body para verificar el email con el token del enlace de activación.
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+// ¿Qué? Request body para actualizar el idioma preferido del usuario.
+export interface UpdateLocaleRequest {
+  locale: 'es' | 'en';
 }
 
 // ¿Qué? Estructura genérica de respuesta exitosa de la API.

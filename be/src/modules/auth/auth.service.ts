@@ -24,6 +24,7 @@ import {
   ForbiddenError,
   NotFoundError,
   ValidationError,
+  BadRequestError,
 } from '../../middlewares/error.middleware.js';
 import {
   logLoginSuccess,
@@ -250,7 +251,7 @@ export async function resetUserPassword(data: ResetPasswordInput): Promise<void>
   });
 
   if (!tokenRecord) {
-    throw new ValidationError('El token es inválido o ha expirado.');
+    throw new BadRequestError('El token es inválido o ha expirado.');
   }
 
   const hashed = await hashPassword(data.newPassword);
@@ -283,7 +284,7 @@ export async function verifyEmail(data: VerifyEmailInput): Promise<void> {
   });
 
   if (!tokenRecord) {
-    throw new ValidationError('El token de verificación es inválido o ha expirado.');
+    throw new BadRequestError('El token de verificación es inválido o ha expirado.');
   }
 
   // ¿Qué? Actualiza is_email_verified=true y marca el token como usado.
