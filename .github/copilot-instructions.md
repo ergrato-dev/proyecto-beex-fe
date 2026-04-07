@@ -881,39 +881,66 @@ Para emails en desarrollo sin Docker, usar [Mailpit standalone](https://mailpit.
 
 | Aspecto           | Regla                                                             |
 | ----------------- | ----------------------------------------------------------------- |
-| Temas             | Dark mode y Light mode con toggle — usar `prefers-color-scheme`   |
+| Temas             | Dark mode y Light mode con toggle — class-based (`@custom-variant dark`) |
+| Dark palette      | `slate-*` — tiene subtono azul, da identidad al dark mode        |
 | Tipografía        | Fuentes sans-serif exclusivamente (Inter, system-ui)              |
 | Colores           | Sólidos y planos — SIN degradados (gradient) en ningún lugar      |
+| Color de acento   | Usar siempre `brand-*` — NUNCA hardcodear `blue-*` u otro color  |
 | Estilo visual     | Diseño moderno, limpio, minimalista con excelente UX/UI           |
 | Botones de acción | Siempre alineados a la derecha (`justify-end`)                    |
 | Spacing           | Usar escala consistente de Tailwind (p-4, gap-6, space-y-4)       |
-| Bordes            | Sutiles (`border border-gray-200 dark:border-gray-700`)           |
+| Bordes            | Sutiles (`border border-gray-200 dark:border-slate-700`)          |
 | Transiciones      | Suaves en hover/focus (`transition-colors duration-200`)          |
 | Responsividad     | Mobile-first — los formularios de auth deben verse bien en móvil  |
 | Accesibilidad     | Labels en inputs, aria-\* básicos, contraste suficiente (WCAG AA) |
 
-```tsx
-// ✅ CORRECTO — Botón de acción a la derecha, sin degradados, sans-serif
-<div className="flex justify-end gap-3">
-  <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
-    bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600
-    rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-    Cancelar
-  </button>
-  <button className="px-4 py-2 text-sm font-medium text-white
-    bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600
-    rounded-lg transition-colors">
-    Guardar
-  </button>
-</div>
+#### Sistema de color de marca — `brand-*`
 
-// ❌ INCORRECTO — Degradados, botones centrados, fuente serif
-<div className="flex justify-center">
-  <button className="bg-gradient-to-r from-blue-500 to-purple-500 font-serif">
-    Guardar
-  </button>
-</div>
+El FE usa variables CSS `brand-{400,500,600,800}` en lugar de un color hardcodeado.
+Cada stack del sistema educativo tiene un color de acento único para identificación visual inmediata.
+
+| Stack              | Proyecto           | Color Tailwind | Shades en `@theme`            |
+| ------------------ | ------------------ | -------------- | ----------------------------- |
+| **Express.js**     | `proyecto-beex-fe` | `blue`         | `var(--color-blue-*)`         |
+| **FastAPI**        | `proyecto-be-fe`   | `emerald`      | `var(--color-emerald-*)`      |
+| **Next.js fullstack** | `proyecto-be-fe-next` | `violet`  | `var(--color-violet-*)`       |
+| **Spring Boot Java**  | `proyecto-besb-fe`    | `amber`   | `var(--color-amber-*)`        |
+| **Spring Boot Kotlin**| `proyecto-besbk-fe`   | `fuchsia` | `var(--color-fuchsia-*)`      |
+| **Go REST API**    | `proyecto-bego-fe` | `cyan`         | `var(--color-cyan-*)`         |
+
+Para adaptar el FE a otro stack, **solo cambia el bloque `@theme` en `fe/src/index.css`**:
+
+```css
+/* Express.js → blue */
+@theme {
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-500: var(--color-blue-500);
+  --color-brand-600: var(--color-blue-600);
+  --color-brand-800: var(--color-blue-800);
+}
+
+/* FastAPI → emerald */
+@theme {
+  --color-brand-400: var(--color-emerald-400);
+  --color-brand-500: var(--color-emerald-500);
+  --color-brand-600: var(--color-emerald-600);
+  --color-brand-800: var(--color-emerald-800);
+}
 ```
+
+```tsx
+// ✅ CORRECTO — usa brand-* para que cambie con el stack
+<button className="bg-brand-600 hover:bg-brand-700 text-white ...">
+  Guardar
+</button>
+
+// ❌ INCORRECTO — color hardcodeado, rompe el sistema de marca
+<button className="bg-blue-600 hover:bg-blue-700 text-white ...">
+  Guardar
+</button>
+```
+
+Ver guía completa: [`_docs/referencia-tecnica/design-system.md`](../_docs/referencia-tecnica/design-system.md)
 
 ---
 
