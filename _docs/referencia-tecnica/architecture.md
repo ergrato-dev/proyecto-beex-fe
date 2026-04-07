@@ -1,5 +1,11 @@
 # Arquitectura del Sistema — NN Auth System (Express Edition)
 
+<!--
+  ¿Qué? Documento de arquitectura general del sistema.
+  ¿Para qué? Proveer una visión macro de cómo se relacionan las capas, flujos y decisiones técnicas.
+  ¿Impacto? Entender la arquitectura es prerequisito para contribuir correctamente al proyecto.
+-->
+
 ## 1. Visión General
 
 NN Auth System es una aplicación web de autenticación construida con arquitectura **cliente-servidor** desacoplada:
@@ -24,13 +30,15 @@ NN Auth System es una aplicación web de autenticación construida con arquitect
 │                   localhost:3000                         │
 │                                                          │
 │  helmet │ cors │ rate-limit │ zod │ jsonwebtoken │ bcrypt │
+│                   audit-log (security events)            │
 └───────────────────────┬─────────────────────────────────┘
                         │ pg driver (pool)
                         ▼
 ┌─────────────────────────────────────────────────────────┐
 │               BASE DE DATOS (PostgreSQL 17)              │
 │                   localhost:5432                         │
-│          Tablas: users, password_reset_tokens            │
+│  Tablas: users, password_reset_tokens,                   │
+│          email_verification_tokens                       │
 └─────────────────────────────────────────────────────────┘
                         
 ┌─────────────────────────────────────────────────────────┐
@@ -66,7 +74,8 @@ HTTP Request
 ┌─────────────┐
 │   Service   │  Contiene toda la lógica de negocio
 │(auth.serv-  │  Orquesta llamadas a la BD, hashing, JWT, email
-│   ice.ts)   │  Lanza errores tipados ante condiciones inválidas
+│   ice.ts)   │  Llama a audit-log para registrar eventos
+│             │  Lanza errores tipados ante condiciones inválidas
 └──────┬──────┘
        │
        ▼
@@ -74,6 +83,14 @@ HTTP Request
 │  Drizzle DB │  Consultas type-safe a PostgreSQL
 │  (db/index  │  Nunca SQL crudo sin parametrizar
 │      .ts)   │
+└─────────────┘
+
+       │ (paralelo con Service)
+       ▼
+┌─────────────┐
+│  Audit Log  │  Registra eventos de seguridad (OWASP A09)
+│(utils/audit │  LOGIN_SUCCESS, LOGIN_FAILED, EMAIL_VERIFIED,
+│   -log.ts)  │  PASSWORD_CHANGED, PASSWORD_RESET_REQUESTED
 └─────────────┘
 ```
 
@@ -85,7 +102,7 @@ HTTP Request
 | `cors` | Control de orígenes permitidos |
 | `express.json()` | Parsing de body JSON |
 | `rateLimit` | Límite de requests en rutas de auth |
-| `validate` | Validación de body/params con zod |
+| `validate` | Validación de body/params con Zod |
 | `auth` | Verificación de JWT (solo rutas protegidas) |
 | `errorHandler` | Captura global de errores — último middleware |
 
@@ -114,6 +131,8 @@ HTTP Request
 │         Custom Hooks + Context           │
 │  useAuth() — estado de autenticación     │
 │  AuthContext — provider global           │
+│  useTheme() — dark/light mode            │
+│  i18n (useTranslation) — idioma          │
 └──────────────────┬───────────────────────┘
                    │ llama
                    ▼
@@ -150,22 +169,53 @@ useAuth() ← hook que consume AuthContext
 | `/` | `LandingPage` | No |
 | `/login` | `LoginPage` | No |
 | `/register` | `RegisterPage` | No |
+| `/verify-email` | `VerifyEmailPage` | No (*) |
 | `/dashboard` | `DashboardPage` | Sí |
 | `/change-password` | `ChangePasswordPage` | Sí |
 | `/forgot-password` | `ForgotPasswordPage` | No |
-| `/reset-password` | `ResetPasswordPage` | No (*) |
+| `/reset-password` | `ResetPasswordPage` | No (**) |
 | `/contacto` | `ContactPage` | No |
 | `/terminos-de-uso` | `TerminosDeUsoPage` | No |
 | `/privacidad` | `PoliticaPrivacidadPage` | No |
 | `/cookies` | `PoliticaCookiesPage` | No |
 
-(*) Requiere token de reset en query param `?token=...`
+(*) Requiere `?token=...` en query param para activar la cuenta
+(**) Requiere `?token=...` de reset en query param
 
 ---
 
-## 4. Flujo de Autenticación — Diagrama de Secuencia
+## 4. Flujos de Autenticación — Diagramas de Secuencia
 
-### 4.1 Login
+### 4.1 Registro + Verificación de Email
+
+```
+Usuario       Frontend           Backend              BD         Email
+  │               │                  │                 │            │
+  │──[datos]──────▶               │                 │            │
+  │               │──POST /register─▶               │            │
+  │               │                  │──INSERT user──▶ │            │
+  │               │                  │  is_email_verified=false    │
+  │               │                  │──INSERT token─▶ │            │
+  │               │                  │  expires_at=+24h            │
+  │               │                  │─────────────────────────────▶
+  │               │                  │                sendEmail()  │
+  │               │◀─{201, user}──────               │            │
+  │◀──[mensaje:   │                  │                 │            │
+  │   verifica tu │                  │                 │            │
+  │   email]──────│                  │                 │            │
+  │               │                  │                 │            │
+  │──[clic enlace]▶               │                 │            │
+  │               │──POST /verify-───▶               │            │
+  │               │   email {token}  │──UPDATE user──▶ │            │
+  │               │                  │  is_email_verified=true     │
+  │               │                  │──UPDATE token─▶ │            │
+  │               │                  │  used=true                  │
+  │               │◀─{200, success}───               │            │
+  │◀──[redirect   │                  │                 │            │
+  │    to login]──│                  │                 │            │
+```
+
+### 4.2 Login
 
 ```
 Usuario       Frontend           Backend              BD
@@ -175,13 +225,15 @@ Usuario       Frontend           Backend              BD
   │               │                  │──SELECT user──▶ │
   │               │                  │◀──user row─────  │
   │               │                  │  verify bcrypt  │
+  │               │                  │  check is_email_verified │
   │               │                  │  sign JWT tokens│
+  │               │                  │  audit: LOGIN_SUCCESS    │
   │               │◀─{access,refresh}─               │
   │               │  store en memory │                 │
   │◀──[redirect]──               │                 │
 ```
 
-### 4.2 Request autenticado
+### 4.3 Request autenticado
 
 ```
 Usuario       Frontend           Backend              BD
@@ -199,47 +251,89 @@ Usuario       Frontend           Backend              BD
 
 ---
 
-## 5. Modelo de Datos — Diagrama ER
+## 5. Seguridad — Capas de Defensa
+
+### 5.1 Capas implementadas
+
+| Capa | Mecanismo | Cobertura |
+|---|---|---|
+| Inputs | Zod validation | Todos los endpoints |
+| Contraseñas | bcryptjs (salt=12) | Registro y cambio de pass |
+| Tokens | JWT HS256 (access 15m + refresh 7d) | Autenticación |
+| Headers HTTP | helmet | Toda la API |
+| CORS | Orígenes explícitos | Toda la API |
+| Rate limiting | express-rate-limit | Endpoints de auth |
+| SQL injection | Drizzle ORM (parametrizado) | Toda la BD |
+| Auditoria | audit-log.ts (JSON estructurado) | Eventos de seguridad |
+| Email verification | email_verification_tokens | Previene cuentas falsas |
+
+### 5.2 Módulo de auditoría (`utils/audit-log.ts`)
+
+Registra eventos de seguridad en formato JSON estructurado (OWASP A09):
+
+```typescript
+// Ejemplo de evento de auditoría
+{
+  timestamp: "2026-03-22T10:00:00.000Z",
+  event: "LOGIN_SUCCESS",
+  userId: "550e8400-...",
+  ip: "192.168.1.1"
+}
+```
+
+Eventos registrados:
+- `LOGIN_SUCCESS` — login exitoso
+- `LOGIN_FAILED` — login fallido (email no existe o contraseña incorrecta)
+- `PASSWORD_CHANGED` — cambio de contraseña exitoso
+- `PASSWORD_RESET_REQUESTED` — solicitud de recuperación de contraseña
+- `EMAIL_VERIFIED` — verificación de email exitosa
+- `RATE_LIMIT_HIT` — límite de velocidad alcanzado
+
+---
+
+## 6. Modelo de Datos — Resumen
 
 ```
-┌──────────────────────────────┐
-│           users              │
-├──────────────────────────────┤
-│ id           UUID  PK        │
-│ email        VARCHAR(255) UQ │
-│ full_name    VARCHAR(255)    │
-│ hashed_pass  VARCHAR(255)    │
-│ is_active    BOOLEAN         │
-│ created_at   TIMESTAMP       │
-│ updated_at   TIMESTAMP       │
-└──────────────┬───────────────┘
-               │ 1
-               │
-               │ N
-┌──────────────▼───────────────┐
-│    password_reset_tokens     │
-├──────────────────────────────┤
-│ id           UUID  PK        │
-│ user_id      UUID  FK        │
-│ token        VARCHAR(255) UQ │
-│ expires_at   TIMESTAMP       │
-│ used         BOOLEAN         │
-│ created_at   TIMESTAMP       │
-└──────────────────────────────┘
+┌──────────────────────────────────┐
+│              users               │
+├──────────────────────────────────┤
+│ id                UUID  PK       │
+│ email             VARCHAR(255) UQ│
+│ full_name         VARCHAR(255)   │
+│ hashed_password   VARCHAR(255)   │
+│ is_email_verified BOOLEAN        │
+│ locale            VARCHAR(10)    │
+│ is_active         BOOLEAN        │
+│ created_at        TIMESTAMP      │
+│ updated_at        TIMESTAMP      │
+└──────┬────────────────┬──────────┘
+       │ 1              │ 1
+       │ N              │ N
+┌──────▼────────┐  ┌───▼──────────────────┐
+│ password_reset│  │ email_verification_  │
+│    _tokens    │  │      tokens          │
+├───────────────┤  ├──────────────────────┤
+│ id  UUID PK   │  │ id        UUID PK    │
+│ user_id FK    │  │ user_id   FK         │
+│ token         │  │ token                │
+│ expires_at    │  │ expires_at           │
+│ used          │  │ used                 │
+│ created_at    │  │ created_at           │
+└───────────────┘  └──────────────────────┘
 ```
 
 ---
 
-## 6. Decisiones Técnicas
+## 7. Decisiones Técnicas
 
-### 6.1 ¿Por qué Express.js en lugar de FastAPI?
+### 7.1 ¿Por qué Express.js en lugar de FastAPI?
 
 Este proyecto es la versión Express del mismo sistema implementado con FastAPI en Python. El objetivo educativo es:
 - Aprender el mismo dominio (autenticación) con dos stacks diferentes
 - Comparar los enfoques: decoradores de FastAPI vs middlewares de Express
 - Entender cómo Node.js maneja el I/O asíncrono (event loop vs async/await de Python)
 
-### 6.2 ¿Por qué Drizzle ORM y no Prisma/TypeORM?
+### 7.2 ¿Por qué Drizzle ORM y no Prisma/TypeORM?
 
 | Criterio | Drizzle | Prisma | TypeORM |
 |---|---|---|---|
@@ -251,21 +345,21 @@ Este proyecto es la versión Express del mismo sistema implementado con FastAPI 
 
 Drizzle refuerza el entendimiento de SQL — clave en un contexto educativo.
 
-### 6.3 ¿Por qué stateless JWT y no sesiones?
+### 7.3 ¿Por qué stateless JWT y no sesiones?
 
 - Simplicidad: no requiere almacenamiento de sesiones en BD
 - Escalabilidad: cualquier instancia del backend puede verificar el token
 - Demostración educativa: implementar el ciclo completo de access + refresh tokens
 
-### 6.4 ¿Por qué dos tokens (access + refresh)?
+### 7.4 ¿Por qué verificación de email obligatoria?
 
-- **Access token** (15 min): corta duración minimiza el riesgo si es interceptado
-- **Refresh token** (7 días): permite renovar el acceso sin re-autenticarse
-- Patrón real usado por la industria — valioso aprenderlo desde el principio
+- Previene el registro de cuentas con emails ajenos (suplantación)
+- Garantiza que el email es accesible por el usuario (necesario para recuperación de contraseña)
+- Refleja el comportamiento de sistemas de producción reales
 
 ---
 
-## 7. Consideraciones de Despliegue (referencia)
+## 8. Consideraciones de Despliegue (referencia)
 
 > Este proyecto es de desarrollo/educativo. Las notas a continuación son orientativas.
 
@@ -276,3 +370,5 @@ Drizzle refuerza el entendimiento de SQL — clave en un contexto educativo.
 | Base de datos | Docker Compose local | Neon, Supabase, Railway, RDS |
 | Email | Mailpit local | Resend, SendGrid, SES |
 | Variables de entorno | `.env` local | Secrets del proveedor cloud |
+
+---
