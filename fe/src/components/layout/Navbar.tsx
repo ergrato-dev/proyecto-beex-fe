@@ -31,7 +31,7 @@ export function Navbar() {
         {/* ¿Qué? Logo / nombre del sistema — enlace a la raíz. */}
         <Link
           to="/"
-          className="text-sm font-semibold text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+          className="text-sm font-semibold text-gray-900 dark:text-slate-100 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-200"
         >
           {t('nav.brand')}
         </Link>
@@ -71,7 +71,7 @@ export function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
+                className="px-3 py-1.5 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 rounded-lg transition-colors duration-200"
               >
                 {t('nav.register')}
               </Link>

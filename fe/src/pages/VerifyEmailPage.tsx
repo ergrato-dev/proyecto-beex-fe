@@ -64,7 +64,7 @@ export function VerifyEmailPage() {
             <div
               aria-label={t('common.loading')}
               role="status"
-              className="mx-auto w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+              className="mx-auto w-10 h-10 border-4 border-brand-600 border-t-transparent rounded-full animate-spin"
             />
             <p className="text-sm text-gray-600 dark:text-slate-400">
               {t('auth.verifyEmail.processing')}

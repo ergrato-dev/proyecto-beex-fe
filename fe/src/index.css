@@ -19,6 +19,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
+ * ¿Qué? Color de marca del proyecto — sistema de identidad visual por stack.
+ * ¿Para qué? Cada proyecto del sistema educativo tiene un color de acento distinto
+ *   para que el alumno identifique visualmente en qué stack está trabajando.
+ *   Cambiar SOLO estas líneas adapta toda la paleta de la aplicación al nuevo stack.
+ * ¿Impacto? Todos los componentes usan `brand-*` en lugar de un color hardcodeado.
+ *   Para cambiar el stack: reemplazar los valores de `var(--color-blue-*)` por
+ *   el color del nuevo stack. Colores asignados:
+ *     blue    → Express.js  (este proyecto)
+ *     emerald → FastAPI
+ *     violet  → Next.js fullstack
+ *     amber   → Spring Boot Java
+ *     fuchsia → Spring Boot Kotlin
+ *     cyan    → Go REST API
+ */
+@theme {
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-500: var(--color-blue-500);
+  --color-brand-600: var(--color-blue-600);
+  --color-brand-800: var(--color-blue-800);
+}
+
+/*
  * ¿Qué? Antialiasing global para mejor renderizado de tipografía.
  * ¿Para qué? Fuentes sans-serif se ven más nítidas en pantallas de alta densidad.
  */

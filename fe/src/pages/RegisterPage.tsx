@@ -110,7 +110,7 @@ export function RegisterPage() {
             </p>
             <Link
               to="/login"
-              className="inline-block text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="inline-block text-sm text-brand-600 dark:text-brand-400 hover:underline"
             >
               {t('auth.login.title')} →
             </Link>
@@ -126,7 +126,7 @@ export function RegisterPage() {
             {t('auth.register.hasAccount')}{' '}
             <Link
               to="/login"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-brand-600 dark:text-brand-400 hover:underline"
             >
               {t('auth.register.loginLink')}
             </Link>

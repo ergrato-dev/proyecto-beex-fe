@@ -112,7 +112,7 @@ export function TerminosDeUsoPage() {
             Para preguntas sobre estos términos, contáctanos en{' '}
             <Link
               to="/contacto"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-brand-600 dark:text-brand-400 hover:underline"
             >
               nuestra página de contacto
             </Link>

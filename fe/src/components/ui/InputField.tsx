@@ -42,7 +42,7 @@ export function InputField({ label, id, error, className = '', ...props }: Input
           'text-gray-900 dark:text-slate-100',
           'placeholder:text-gray-400 dark:placeholder:text-slate-500',
           'transition-colors duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0',
           error
             ? 'border border-red-500 dark:border-red-400'
             : 'border border-gray-300 dark:border-slate-600',

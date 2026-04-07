@@ -34,12 +34,12 @@ export function NNAuthLogo({ size = 36 }: NNAuthLogoProps) {
       aria-hidden="true"
       focusable="false"
     >
-      {/* Fondo: badge cuadrado con bordes redondeados y borde azul */}
-      <rect x="1" y="1" width="34" height="34" rx="8" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5" />
-      {/* Primera letra N (izquierda) — trazos en azul claro */}
-      <polyline points="7,27 7,9 15,27 15,9" fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Fondo: badge cuadrado con bordes redondeados y borde del color de marca */}
+      <rect x="1" y="1" width="34" height="34" rx="8" fill="#0f172a" stroke="var(--color-brand-500)" strokeWidth="1.5" />
+      {/* Primera letra N (izquierda) — trazos en color de marca claro */}
+      <polyline points="7,27 7,9 15,27 15,9" fill="none" stroke="var(--color-brand-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {/* Segunda letra N (derecha) — misma proporción, desplazada 12px */}
-      <polyline points="21,27 21,9 29,27 29,9" fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="21,27 21,9 29,27 29,9" fill="none" stroke="var(--color-brand-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -123,7 +123,7 @@ export function LandingPage() {
             className="mb-5 text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 dark:text-slate-100"
           >
             {t('landing.title')}{' '}
-            <span className="text-blue-600 dark:text-blue-500">Express</span>
+            <span className="text-brand-600 dark:text-brand-500">Express</span>
           </h1>
 
           <p className="mb-10 text-lg sm:text-xl leading-relaxed text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">
@@ -135,7 +135,7 @@ export function LandingPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-7 py-3 text-base font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-7 py-3 text-base font-medium text-white transition-colors duration-200 hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               {t('landing.ctaRegister')}
               <ArrowRight size={18} aria-hidden="true" />
@@ -181,7 +181,7 @@ export function LandingPage() {
                     className="mb-4 inline-flex rounded-lg bg-gray-100 dark:bg-slate-800 p-3"
                     aria-hidden="true"
                   >
-                    <Icon size={22} className="text-blue-600 dark:text-blue-500" />
+                    <Icon size={22} className="text-brand-600 dark:text-brand-500" />
                   </div>
                   <h3 className="mb-2 text-base font-semibold text-gray-900 dark:text-slate-100">
                     {t(`landing.features.${key}.title`)}
@@ -229,7 +229,7 @@ export function LandingPage() {
               <div className="flex flex-col items-center text-center">
                 {/* Número del paso con estilo de badge */}
                 <div
-                  className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 text-xl font-bold text-blue-600 dark:text-blue-400"
+                  className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-950 text-xl font-bold text-brand-600 dark:text-brand-400"
                   aria-hidden="true"
                 >
                   {t(`landing.steps.${stepKey}.number`)}
@@ -297,7 +297,7 @@ export function LandingPage() {
           <div className="flex justify-center">
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3.5 text-base font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-8 py-3.5 text-base font-medium text-white transition-colors duration-200 hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               {t('landing.ctaFinalButton')}
               <ArrowRight size={18} aria-hidden="true" />

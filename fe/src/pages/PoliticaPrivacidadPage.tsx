@@ -34,7 +34,7 @@ export function PoliticaPrivacidadPage() {
             contáctanos a través de{' '}
             <Link
               to="/contacto"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-brand-600 dark:text-brand-400 hover:underline"
             >
               nuestra página de contacto
             </Link>

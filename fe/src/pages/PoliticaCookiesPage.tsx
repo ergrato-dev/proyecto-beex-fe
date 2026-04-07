@@ -61,7 +61,7 @@ export function PoliticaCookiesPage() {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 <tr>
-                  <td className="py-2 pr-4 font-mono text-xs text-blue-600 dark:text-blue-400">
+                  <td className="py-2 pr-4 font-mono text-xs text-brand-600 dark:text-brand-400">
                     accessToken
                   </td>
                   <td className="py-2 pr-4">
@@ -70,7 +70,7 @@ export function PoliticaCookiesPage() {
                   <td className="py-2">15 minutos (TTL del token)</td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4 font-mono text-xs text-blue-600 dark:text-blue-400">
+                  <td className="py-2 pr-4 font-mono text-xs text-brand-600 dark:text-brand-400">
                     refreshToken
                   </td>
                   <td className="py-2 pr-4">
@@ -79,7 +79,7 @@ export function PoliticaCookiesPage() {
                   <td className="py-2">7 días</td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4 font-mono text-xs text-blue-600 dark:text-blue-400">
+                  <td className="py-2 pr-4 font-mono text-xs text-brand-600 dark:text-brand-400">
                     theme
                   </td>
                   <td className="py-2 pr-4">

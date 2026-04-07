@@ -60,7 +60,7 @@ export function ForgotPasswordPage() {
           <div className="mt-4 flex justify-end">
             <Link
               to="/login"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-sm text-brand-600 dark:text-brand-400 hover:underline"
             >
               {t('auth.forgotPassword.backToLogin')}
             </Link>

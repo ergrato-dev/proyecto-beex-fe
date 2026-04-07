@@ -19,7 +19,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // ¿Para qué? Separar las variantes facilita añadir nuevas sin condicionales en el JSX.
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white',
+    'bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white',
   secondary:
     'bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 ' +
     'text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600',
@@ -43,7 +43,7 @@ export function Button({
         'inline-flex items-center justify-center gap-2',
         'px-4 py-2 text-sm font-medium rounded-lg',
         'transition-colors duration-200',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         VARIANT_CLASSES[variant],
         className,

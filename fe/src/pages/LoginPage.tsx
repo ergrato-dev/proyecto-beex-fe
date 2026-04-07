@@ -63,7 +63,7 @@ export function LoginPage() {
             {t('auth.login.noAccount')}{' '}
             <Link
               to="/register"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-brand-600 dark:text-brand-400 hover:underline"
             >
               {t('auth.login.registerLink')}
             </Link>
@@ -102,7 +102,7 @@ export function LoginPage() {
           <div className="flex justify-end">
             <Link
               to="/forgot-password"
-              className="text-xs text-gray-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-xs text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
             >
               {t('auth.login.forgotPassword')}
             </Link>

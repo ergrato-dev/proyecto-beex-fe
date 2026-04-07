@@ -67,7 +67,7 @@ export function ContactPage() {
             <div className="flex items-start gap-3">
               <Mail
                 size={18}
-                className="mt-0.5 text-blue-600 dark:text-blue-400 shrink-0"
+                className="mt-0.5 text-brand-600 dark:text-brand-400 shrink-0"
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
@@ -82,7 +82,7 @@ export function ContactPage() {
             <div className="flex items-start gap-3">
               <Phone
                 size={18}
-                className="mt-0.5 text-blue-600 dark:text-blue-400 shrink-0"
+                className="mt-0.5 text-brand-600 dark:text-brand-400 shrink-0"
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
@@ -97,7 +97,7 @@ export function ContactPage() {
             <div className="flex items-start gap-3">
               <MapPin
                 size={18}
-                className="mt-0.5 text-blue-600 dark:text-blue-400 shrink-0"
+                className="mt-0.5 text-brand-600 dark:text-brand-400 shrink-0"
               />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
@@ -189,7 +189,7 @@ export function ContactPage() {
                   className="w-full rounded-lg border border-gray-300 dark:border-slate-600
                     bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100
                     px-3 py-2 text-sm placeholder-gray-400 dark:placeholder-slate-500
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                    focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400
                     transition-colors resize-none"
                 />
               </div>
