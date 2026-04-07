@@ -15,17 +15,17 @@ export function PoliticaPrivacidadPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] px-4 py-12 max-w-3xl mx-auto">
       <div className="mb-8">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
           Última actualización: enero de 2026
         </p>
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-slate-100">
           {t('legal.privacy.title')}
         </h1>
       </div>
 
-      <div className="space-y-8 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="space-y-8 text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             1. Responsable del tratamiento
           </h2>
           <p>
@@ -43,26 +43,26 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             2. Datos que recopilamos
           </h2>
           <p>Al registrarte y usar el servicio, recopilamos:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li>
-              <strong className="text-gray-900 dark:text-gray-100">
+              <strong className="text-gray-900 dark:text-slate-100">
                 Datos de identificación:
               </strong>{' '}
               nombre completo y dirección de correo electrónico.
             </li>
             <li>
-              <strong className="text-gray-900 dark:text-gray-100">
+              <strong className="text-gray-900 dark:text-slate-100">
                 Datos de seguridad:
               </strong>{' '}
               contraseña (almacenada únicamente como hash bcrypt, nunca en texto
               plano).
             </li>
             <li>
-              <strong className="text-gray-900 dark:text-gray-100">
+              <strong className="text-gray-900 dark:text-slate-100">
                 Datos técnicos:
               </strong>{' '}
               fecha de creación de la cuenta y estado de la misma.
@@ -71,7 +71,7 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             3. Finalidad del tratamiento
           </h2>
           <p>Usamos tus datos exclusivamente para:</p>
@@ -81,7 +81,7 @@ export function PoliticaPrivacidadPage() {
             <li>Mantener la seguridad de tu cuenta.</li>
           </ul>
           <p className="mt-2">
-            <strong className="text-gray-900 dark:text-gray-100">
+            <strong className="text-gray-900 dark:text-slate-100">
               No vendemos ni compartimos tus datos con terceros
             </strong>{' '}
             con fines comerciales.
@@ -89,7 +89,7 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             4. Base legal
           </h2>
           <p>
@@ -101,7 +101,7 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             5. Conservación de datos
           </h2>
           <p>
@@ -113,7 +113,7 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             6. Seguridad
           </h2>
           <p>
@@ -125,7 +125,7 @@ export function PoliticaPrivacidadPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             7. Tus derechos
           </h2>
           <p>

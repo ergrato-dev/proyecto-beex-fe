@@ -39,10 +39,10 @@ export function LandingPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       {/* ─── Hero ─── */}
       <section className="text-center mb-20">
-        <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 dark:text-gray-100 mb-4 tracking-tight">
+        <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 dark:text-slate-100 mb-4 tracking-tight">
           {t('landing.title')}
         </h1>
-        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-8">
+        <p className="text-lg text-gray-500 dark:text-slate-400 max-w-xl mx-auto mb-8">
           {t('landing.subtitle')}
         </p>
 
@@ -61,7 +61,7 @@ export function LandingPage() {
       <section aria-labelledby="features-heading">
         <h2
           id="features-heading"
-          className="text-base font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center mb-10"
+          className="text-base font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest text-center mb-10"
         >
           {t('landing.featuresHeading')}
         </h2>
@@ -69,13 +69,13 @@ export function LandingPage() {
           {FEATURES.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+              className="p-6 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900"
             >
               <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-3" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-1">
                 {title}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400">{description}</p>
             </div>
           ))}
         </div>

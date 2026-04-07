@@ -23,7 +23,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+    <header className="border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
       <nav
         className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"
         aria-label={t('nav.mainNavAriaLabel')}
@@ -31,7 +31,7 @@ export function Navbar() {
         {/* ¿Qué? Logo / nombre del sistema — enlace a la raíz. */}
         <Link
           to="/"
-          className="text-sm font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+          className="text-sm font-semibold text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
         >
           {t('nav.brand')}
         </Link>
@@ -46,7 +46,7 @@ export function Navbar() {
               {/* ¿Qué? Enlace al perfil del usuario autenticado. */}
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{user?.fullName}</span>
@@ -56,7 +56,7 @@ export function Navbar() {
               <button
                 onClick={handleLogout}
                 aria-label={t('nav.logoutAriaLabel')}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
+                className="p-2 text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
               >
                 <LogOut className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -65,7 +65,7 @@ export function Navbar() {
             <>
               <Link
                 to="/login"
-                className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
+                className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
               >
                 {t('nav.login')}
               </Link>

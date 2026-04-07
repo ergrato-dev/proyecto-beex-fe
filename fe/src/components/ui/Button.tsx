@@ -21,8 +21,8 @@ const VARIANT_CLASSES: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
     'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white',
   secondary:
-    'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 ' +
-    'text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600',
+    'bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 ' +
+    'text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600',
   danger:
     'bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white',
 };

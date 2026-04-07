@@ -15,22 +15,22 @@ export function PoliticaCookiesPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] px-4 py-12 max-w-3xl mx-auto">
       <div className="mb-8">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
           Última actualización: enero de 2026
         </p>
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-slate-100">
           {t('legal.cookies.title')}
         </h1>
       </div>
 
-      <div className="space-y-8 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="space-y-8 text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             1. ¿Qué usamos?
           </h2>
           <p>
             NN Auth System almacena información en el{' '}
-            <strong className="text-gray-900 dark:text-gray-100">
+            <strong className="text-gray-900 dark:text-slate-100">
               localStorage
             </strong>{' '}
             de tu navegador, no en cookies tradicionales. Esta distinción es
@@ -40,26 +40,26 @@ export function PoliticaCookiesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             2. Datos almacenados en localStorage
           </h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-2 pr-4 font-medium text-gray-900 dark:text-gray-100">
+                <tr className="border-b border-gray-200 dark:border-slate-700">
+                  <th className="text-left py-2 pr-4 font-medium text-gray-900 dark:text-slate-100">
                     Clave
                   </th>
-                  <th className="text-left py-2 pr-4 font-medium text-gray-900 dark:text-gray-100">
+                  <th className="text-left py-2 pr-4 font-medium text-gray-900 dark:text-slate-100">
                     Contenido
                   </th>
-                  <th className="text-left py-2 font-medium text-gray-900 dark:text-gray-100">
+                  <th className="text-left py-2 font-medium text-gray-900 dark:text-slate-100">
                     Duración
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 <tr>
                   <td className="py-2 pr-4 font-mono text-xs text-blue-600 dark:text-blue-400">
                     accessToken
@@ -93,19 +93,19 @@ export function PoliticaCookiesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             3. Finalidad
           </h2>
           <ul className="list-disc pl-6 space-y-1">
             <li>
-              <strong className="text-gray-900 dark:text-gray-100">
+              <strong className="text-gray-900 dark:text-slate-100">
                 Tokens JWT:
               </strong>{' '}
               mantener la sesión iniciada sin requerir credenciales en cada
               página. Son estrictamente necesarios para el funcionamiento del sistema.
             </li>
             <li>
-              <strong className="text-gray-900 dark:text-gray-100">
+              <strong className="text-gray-900 dark:text-slate-100">
                 Preferencia de tema:
               </strong>{' '}
               recordar si prefieres modo oscuro o claro entre visitas.
@@ -117,21 +117,21 @@ export function PoliticaCookiesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             4. Cómo eliminar los datos almacenados
           </h2>
           <p>
             Al cerrar sesión, los tokens se eliminan automáticamente del
             localStorage. También puedes limpiarlos manualmente desde las
             herramientas de desarrollador de tu navegador (
-            <strong className="text-gray-900 dark:text-gray-100">F12</strong> →
+            <strong className="text-gray-900 dark:text-slate-100">F12</strong> →
             Application → Local Storage) o borrando los datos de navegación del
             sitio.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             5. Nota de seguridad
           </h2>
           <div className="p-4 rounded-lg border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20">

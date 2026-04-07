@@ -18,7 +18,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     // ¿Qué? min-h-screen + flex-col garantiza que el footer siempre esté al fondo.
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950">
       <Navbar />
       <main className="flex-1" id="main-content">
         {children}

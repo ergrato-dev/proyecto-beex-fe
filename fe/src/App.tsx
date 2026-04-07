@@ -61,7 +61,7 @@ function App() {
             element={
               <Layout>
                 <div className="min-h-[60vh] flex items-center justify-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  <p className="text-gray-500 dark:text-slate-400 text-sm">
                     404 — Pagina no encontrada
                   </p>
                 </div>

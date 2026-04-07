@@ -56,10 +56,10 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* ─── Cabecera ─── */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100 mb-1">
             {t('auth.login.title')}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             {t('auth.login.noAccount')}{' '}
             <Link
               to="/register"
@@ -102,7 +102,7 @@ export function LoginPage() {
           <div className="flex justify-end">
             <Link
               to="/forgot-password"
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-xs text-gray-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               {t('auth.login.forgotPassword')}
             </Link>

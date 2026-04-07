@@ -25,7 +25,7 @@ export function InputField({ label, id, error, className = '', ...props }: Input
       {/* ¿Qué? Label vinculado al input por htmlFor — obligatorio WCAG AA. */}
       <label
         htmlFor={id}
-        className="text-sm font-medium text-gray-700 dark:text-gray-300"
+        className="text-sm font-medium text-gray-700 dark:text-slate-300"
       >
         {label}
       </label>
@@ -38,14 +38,14 @@ export function InputField({ label, id, error, className = '', ...props }: Input
         aria-describedby={error ? errorId : undefined}
         className={[
           'w-full px-3 py-2 text-sm rounded-lg',
-          'bg-white dark:bg-gray-800',
-          'text-gray-900 dark:text-gray-100',
-          'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+          'bg-white dark:bg-slate-800',
+          'text-gray-900 dark:text-slate-100',
+          'placeholder:text-gray-400 dark:placeholder:text-slate-500',
           'transition-colors duration-200',
           'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0',
           error
             ? 'border border-red-500 dark:border-red-400'
-            : 'border border-gray-300 dark:border-gray-600',
+            : 'border border-gray-300 dark:border-slate-600',
           className,
         ]
           .filter(Boolean)

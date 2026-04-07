@@ -95,10 +95,10 @@ export function ChangePasswordPage() {
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100 mb-1">
             {t('auth.changePassword.title')}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             {t('auth.changePassword.subtitle')}
           </p>
         </div>

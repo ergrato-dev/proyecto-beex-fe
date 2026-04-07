@@ -25,8 +25,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // ¿Para qué? Evitar un flash de redirección al login cuando el usuario ya tiene sesión.
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.loading')}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
+        <p className="text-gray-500 dark:text-slate-400 text-sm">{t('common.loading')}</p>
       </div>
     );
   }

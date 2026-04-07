@@ -16,17 +16,17 @@ export function TerminosDeUsoPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] px-4 py-12 max-w-3xl mx-auto">
       <div className="mb-8">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
           Última actualización: enero de 2026
         </p>
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-slate-100">
           {t('legal.terms.title')}
         </h1>
       </div>
 
-      <div className="prose prose-gray dark:prose-invert max-w-none space-y-8 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="prose prose-gray dark:prose-invert max-w-none space-y-8 text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             1. Aceptación de los términos
           </h2>
           <p>
@@ -37,7 +37,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             2. Uso del servicio
           </h2>
           <p>
@@ -60,7 +60,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             3. Cuentas de usuario
           </h2>
           <p>
@@ -71,7 +71,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             4. Propiedad intelectual
           </h2>
           <p>
@@ -82,7 +82,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             5. Limitación de responsabilidad
           </h2>
           <p>
@@ -94,7 +94,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             6. Modificaciones
           </h2>
           <p>
@@ -105,7 +105,7 @@ export function TerminosDeUsoPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-slate-100">
             7. Contacto
           </h2>
           <p>

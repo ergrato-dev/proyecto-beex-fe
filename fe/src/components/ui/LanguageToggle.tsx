@@ -23,7 +23,7 @@ export function LanguageToggle() {
         <span key={lang} className="flex items-center gap-0.5">
           {/* ¿Qué? Separador visual entre opciones de idioma. */}
           {idx > 0 && (
-            <span className="text-gray-300 dark:text-gray-700 select-none px-0.5" aria-hidden="true">
+            <span className="text-gray-300 dark:text-slate-700 select-none px-0.5" aria-hidden="true">
               |
             </span>
           )}
@@ -34,8 +34,8 @@ export function LanguageToggle() {
             className={[
               'px-1.5 py-1 rounded transition-colors duration-200',
               current === lang
-                ? 'text-gray-900 dark:text-gray-100 font-semibold'
-                : 'text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300',
+                ? 'text-gray-900 dark:text-slate-100 font-semibold'
+                : 'text-gray-400 dark:text-slate-600 hover:text-gray-700 dark:hover:text-slate-300',
             ].join(' ')}
             aria-pressed={current === lang}
             aria-label={`Cambiar idioma a ${lang.toUpperCase()}`}

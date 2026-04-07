@@ -18,8 +18,8 @@ export function ThemeToggle() {
       aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
       className={[
         'p-2 rounded-lg',
-        'text-gray-600 dark:text-gray-400',
-        'hover:bg-gray-100 dark:hover:bg-gray-800',
+        'text-gray-600 dark:text-slate-400',
+        'hover:bg-gray-100 dark:hover:bg-slate-800',
         'transition-colors duration-200',
       ].join(' ')}
     >

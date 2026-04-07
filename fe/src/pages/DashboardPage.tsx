@@ -37,39 +37,39 @@ export function DashboardPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
       {/* ─── Bienvenida ─── */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100 mb-1">
           {t('dashboard.welcome', { name: user?.fullName })}
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-gray-500 dark:text-slate-400">
           {t('dashboard.sessionActive')}
         </p>
       </div>
 
       {/* ─── Tarjeta de perfil ─── */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6 max-w-md">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 mb-6 max-w-md">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-4">
           {t('dashboard.accountData')}
         </h2>
         <dl className="space-y-3">
           <div>
-            <dt className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.nameLabel')}</dt>
-            <dd className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+            <dt className="text-xs text-gray-500 dark:text-slate-400">{t('dashboard.nameLabel')}</dt>
+            <dd className="text-sm text-gray-900 dark:text-slate-100 font-medium">
               {user?.fullName}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-gray-500 dark:text-gray-400">
+            <dt className="text-xs text-gray-500 dark:text-slate-400">
               {t('dashboard.emailLabel')}
             </dt>
-            <dd className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+            <dd className="text-sm text-gray-900 dark:text-slate-100 font-medium">
               {user?.email}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-gray-500 dark:text-gray-400">
+            <dt className="text-xs text-gray-500 dark:text-slate-400">
               {t('dashboard.memberSince')}
             </dt>
-            <dd className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+            <dd className="text-sm text-gray-900 dark:text-slate-100 font-medium">
               {user?.createdAt ? formatDate(user.createdAt) : '—'}
             </dd>
           </div>
