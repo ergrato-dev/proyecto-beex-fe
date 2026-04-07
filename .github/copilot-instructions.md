@@ -171,11 +171,11 @@ pnpm add paquete@X.Y.Z      # ✅ versión exacta verificada
 
 #### Versiones con CVE conocidos en este proyecto — historial
 
-| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                                          | Versión / Fix aplicado |
-| ------------ | ------------------- | --------------------- | ------------------------------------------------------------------------- | ----------------------- |
-| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                                         | `1.14.0` ✅             |
-| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                                 | `4.2.1` ✅              |
-| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection                | `8.0.4` ✅              |
+| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                                          | Versión / Fix aplicado                                                       |
+| ------------ | ------------------- | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                                         | `1.14.0` ✅                                                                  |
+| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                                 | `4.2.1` ✅                                                                   |
+| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection                | `8.0.4` ✅                                                                   |
 | `esbuild`    | `≤ 0.24.2`          | Moderate              | GHSA-67mh-4wv8-2f99 — dev server CORS bypass (acepta peticiones externas) | `pnpm.overrides "esbuild": "0.27.7"` + `vitest@4.1.2` + `vite@8.0.3` (BE) ✅ |
 
 > Actualizar esta tabla cada vez que se detecte o resuelva una vulnerabilidad en una dependencia del proyecto.
@@ -271,12 +271,12 @@ Con `save-exact=true`, cualquier `pnpm add` guarda la versión instalada exacta,
 
 #### Motivación
 
-| Riesgo | Detalle |
-|--------|---------|
-| CVEs silenciosos | Un rango como `^4.0.0` puede instalar `4.9.9` con vulnerabilidades sin aviso |
-| Builds no reproducibles | Dos `pnpm install` en fechas distintas → resultados distintos |
-| Supply-chain attacks | Una actualización automática puede inyectar código malicioso |
-| Auditorías inútiles | No se puede fijar qué versión se ejecuta en producción |
+| Riesgo                  | Detalle                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| CVEs silenciosos        | Un rango como `^4.0.0` puede instalar `4.9.9` con vulnerabilidades sin aviso |
+| Builds no reproducibles | Dos `pnpm install` en fechas distintas → resultados distintos                |
+| Supply-chain attacks    | Una actualización automática puede inyectar código malicioso                 |
+| Auditorías inútiles     | No se puede fijar qué versión se ejecuta en producción                       |
 
 ---
 
@@ -879,34 +879,34 @@ Para emails en desarrollo sin Docker, usar [Mailpit standalone](https://mailpit.
 
 ### 14.4 Diseño y UX/UI — OBLIGATORIO
 
-| Aspecto           | Regla                                                             |
-| ----------------- | ----------------------------------------------------------------- |
+| Aspecto           | Regla                                                                    |
+| ----------------- | ------------------------------------------------------------------------ |
 | Temas             | Dark mode y Light mode con toggle — class-based (`@custom-variant dark`) |
-| Dark palette      | `slate-*` — tiene subtono azul, da identidad al dark mode        |
-| Tipografía        | Fuentes sans-serif exclusivamente (Inter, system-ui)              |
-| Colores           | Sólidos y planos — SIN degradados (gradient) en ningún lugar      |
-| Color de acento   | Usar siempre `brand-*` — NUNCA hardcodear `blue-*` u otro color  |
-| Estilo visual     | Diseño moderno, limpio, minimalista con excelente UX/UI           |
-| Botones de acción | Siempre alineados a la derecha (`justify-end`)                    |
-| Spacing           | Usar escala consistente de Tailwind (p-4, gap-6, space-y-4)       |
-| Bordes            | Sutiles (`border border-gray-200 dark:border-slate-700`)          |
-| Transiciones      | Suaves en hover/focus (`transition-colors duration-200`)          |
-| Responsividad     | Mobile-first — los formularios de auth deben verse bien en móvil  |
-| Accesibilidad     | Labels en inputs, aria-\* básicos, contraste suficiente (WCAG AA) |
+| Dark palette      | `slate-*` — tiene subtono azul, da identidad al dark mode                |
+| Tipografía        | Fuentes sans-serif exclusivamente (Inter, system-ui)                     |
+| Colores           | Sólidos y planos — SIN degradados (gradient) en ningún lugar             |
+| Color de acento   | Usar siempre `brand-*` — NUNCA hardcodear `blue-*` u otro color          |
+| Estilo visual     | Diseño moderno, limpio, minimalista con excelente UX/UI                  |
+| Botones de acción | Siempre alineados a la derecha (`justify-end`)                           |
+| Spacing           | Usar escala consistente de Tailwind (p-4, gap-6, space-y-4)              |
+| Bordes            | Sutiles (`border border-gray-200 dark:border-slate-700`)                 |
+| Transiciones      | Suaves en hover/focus (`transition-colors duration-200`)                 |
+| Responsividad     | Mobile-first — los formularios de auth deben verse bien en móvil         |
+| Accesibilidad     | Labels en inputs, aria-\* básicos, contraste suficiente (WCAG AA)        |
 
 #### Sistema de color de marca — `brand-*`
 
 El FE usa variables CSS `brand-{400,500,600,800}` en lugar de un color hardcodeado.
 Cada stack del sistema educativo tiene un color de acento único para identificación visual inmediata.
 
-| Stack              | Proyecto           | Color Tailwind | Shades en `@theme`            |
-| ------------------ | ------------------ | -------------- | ----------------------------- |
-| **Express.js**     | `proyecto-beex-fe` | `blue`         | `var(--color-blue-*)`         |
-| **FastAPI**        | `proyecto-be-fe`   | `emerald`      | `var(--color-emerald-*)`      |
-| **Next.js fullstack** | `proyecto-be-fe-next` | `violet`  | `var(--color-violet-*)`       |
-| **Spring Boot Java**  | `proyecto-besb-fe`    | `amber`   | `var(--color-amber-*)`        |
-| **Spring Boot Kotlin**| `proyecto-besbk-fe`   | `fuchsia` | `var(--color-fuchsia-*)`      |
-| **Go REST API**    | `proyecto-bego-fe` | `cyan`         | `var(--color-cyan-*)`         |
+| Stack                  | Proyecto              | Color Tailwind | Shades en `@theme`       |
+| ---------------------- | --------------------- | -------------- | ------------------------ |
+| **Express.js**         | `proyecto-beex-fe`    | `blue`         | `var(--color-blue-*)`    |
+| **FastAPI**            | `proyecto-be-fe`      | `emerald`      | `var(--color-emerald-*)` |
+| **Next.js fullstack**  | `proyecto-be-fe-next` | `violet`       | `var(--color-violet-*)`  |
+| **Spring Boot Java**   | `proyecto-besb-fe`    | `amber`        | `var(--color-amber-*)`   |
+| **Spring Boot Kotlin** | `proyecto-besbk-fe`   | `fuchsia`      | `var(--color-fuchsia-*)` |
+| **Go REST API**        | `proyecto-bego-fe`    | `cyan`         | `var(--color-cyan-*)`    |
 
 Para adaptar el FE a otro stack, **solo cambia el bloque `@theme` en `fe/src/index.css`**:
 
