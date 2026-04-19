@@ -314,7 +314,7 @@ proyecto/                          # Raíz del monorepo
 ├── docker-compose.yml             # Servicios: PostgreSQL 17 + Mailpit
 ├── README.md                      # Documentación principal del proyecto
 │
-├── _docs/                         # 📚 Documentación del proyecto
+├── docs/                         # 📚 Documentación del proyecto
 │   ├── referencia-tecnica/
 │   │   ├── architecture.md        # Arquitectura general y diagramas
 │   │   ├── api-endpoints.md       # Documentación de todos los endpoints
@@ -940,7 +940,7 @@ Para adaptar el FE a otro stack, **solo cambia el bloque `@theme` en `fe/src/ind
 </button>
 ```
 
-Ver guía completa: [`_docs/referencia-tecnica/design-system.md`](../_docs/referencia-tecnica/design-system.md)
+Ver guía completa: [`docs/referencia-tecnica/design-system.md`](../docs/referencia-tecnica/design-system.md)
 
 ---
 
@@ -1039,9 +1039,9 @@ Ver guía completa: [`_docs/referencia-tecnica/design-system.md`](../_docs/refer
 
 ### Fase 8 — Documentación Final
 
-- [ ] Completar `_docs/referencia-tecnica/architecture.md`
-- [ ] Completar `_docs/referencia-tecnica/api-endpoints.md`
-- [ ] Completar `_docs/referencia-tecnica/database-schema.md`
+- [ ] Completar `docs/referencia-tecnica/architecture.md`
+- [ ] Completar `docs/referencia-tecnica/api-endpoints.md`
+- [ ] Completar `docs/referencia-tecnica/database-schema.md`
 - [ ] Completar documentos de conceptos y requisitos
 - [ ] Actualizar `README.md` con instrucciones finales
 

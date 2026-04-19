@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="_assets/banner.svg" alt="NN Auth System — Express Edition" width="100%">
+  <img src="assets/banner.svg" alt="NN Auth System — Express Edition" width="100%">
 </div>
 
 <!--
@@ -276,7 +276,7 @@ proyecto-beex-fe/
 ├── docker-compose.yml            # PostgreSQL 17 + Mailpit
 ├── README.md                     # ← Este archivo
 │
-├── _docs/                        # Documentación técnica
+├── docs/                        # Documentación técnica
 │   ├── referencia-tecnica/
 │   │   ├── architecture.md       # Arquitectura general y diagramas
 │   │   ├── api-endpoints.md      # Todos los endpoints con ejemplos
@@ -366,14 +366,14 @@ Para las reglas completas, ver [`.github/copilot-instructions.md`](.github/copil
 
 | Documento                                                                                        | Descripción                                               |
 | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| [`_docs/setup/con-docker.md`](_docs/setup/con-docker.md)                                         | Setup recomendado: Docker para infraestructura + Node.js nativo |
-| [`_docs/setup/sin-docker.md`](_docs/setup/sin-docker.md)                                         | Setup alternativo: PostgreSQL y Node.js 100% nativos      |
-| [`_docs/referencia-tecnica/architecture.md`](_docs/referencia-tecnica/architecture.md)           | Arquitectura general, flujos y decisiones técnicas        |
-| [`_docs/referencia-tecnica/api-endpoints.md`](_docs/referencia-tecnica/api-endpoints.md)         | Todos los endpoints con parámetros, respuestas y errores  |
-| [`_docs/referencia-tecnica/database-schema.md`](_docs/referencia-tecnica/database-schema.md)     | Esquema ER, tablas, columnas y migraciones                |
-| [`_docs/conceptos/owasp-top-10.md`](_docs/conceptos/owasp-top-10.md)                             | Implementación del OWASP Top 10 2021                      |
-| [`_docs/conceptos/accesibilidad-aria-wcag.md`](_docs/conceptos/accesibilidad-aria-wcag.md)       | Estándares ARIA/WCAG 2.1 AA aplicados                     |
-| [`_docs/conceptos/patrones-arquitectonicos.md`](_docs/conceptos/patrones-arquitectonicos.md)     | Patrones de diseño aplicados (MVC, Repository, etc.)      |
+| [`docs/setup/con-docker.md`](docs/setup/con-docker.md)                                         | Setup recomendado: Docker para infraestructura + Node.js nativo |
+| [`docs/setup/sin-docker.md`](docs/setup/sin-docker.md)                                         | Setup alternativo: PostgreSQL y Node.js 100% nativos      |
+| [`docs/referencia-tecnica/architecture.md`](docs/referencia-tecnica/architecture.md)           | Arquitectura general, flujos y decisiones técnicas        |
+| [`docs/referencia-tecnica/api-endpoints.md`](docs/referencia-tecnica/api-endpoints.md)         | Todos los endpoints con parámetros, respuestas y errores  |
+| [`docs/referencia-tecnica/database-schema.md`](docs/referencia-tecnica/database-schema.md)     | Esquema ER, tablas, columnas y migraciones                |
+| [`docs/conceptos/owasp-top-10.md`](docs/conceptos/owasp-top-10.md)                             | Implementación del OWASP Top 10 2021                      |
+| [`docs/conceptos/accesibilidad-aria-wcag.md`](docs/conceptos/accesibilidad-aria-wcag.md)       | Estándares ARIA/WCAG 2.1 AA aplicados                     |
+| [`docs/conceptos/patrones-arquitectonicos.md`](docs/conceptos/patrones-arquitectonicos.md)     | Patrones de diseño aplicados (MVC, Repository, etc.)      |
 | [`be/README.md`](be/README.md)                                                                   | Guía pedagógica completa del backend Express.js           |
 | [`fe/README.md`](fe/README.md)                                                                   | Guía pedagógica completa del frontend React               |
 | [`.github/copilot-instructions.md`](.github/copilot-instructions.md)                             | Reglas y convenciones del proyecto                        |
