@@ -23,7 +23,6 @@ import {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
-  ValidationError,
   BadRequestError,
 } from '../../middlewares/error.middleware.js';
 import {

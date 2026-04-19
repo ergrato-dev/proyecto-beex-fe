@@ -28,18 +28,32 @@ export class ValidationError extends AppError {
   constructor(message: string) { super(message, 422, 'VALIDATION_ERROR'); }
 }
 
+// ¿Qué? 401 Unauthorized — el cliente no está autenticado o su token es inválido.
+// ¿Para qué? Diferenciar "no estás autenticado" (401) de "no tienes permiso" (403).
+// ¿Impacto? El cliente debe redirigir al login cuando recibe este error.
 export class UnauthorizedError extends AppError {
   constructor(message = 'Unauthorized') { super(message, 401, 'UNAUTHORIZED'); }
 }
 
+// ¿Qué? 403 Forbidden — el cliente está autenticado pero no tiene permiso para esta acción.
+// ¿Para qué? Usado cuando el usuario existe pero hay una condición que bloquea el acceso,
+//   por ejemplo: email no verificado, cuenta desactivada.
+// ¿Impacto? A diferencia del 401, el cliente sabe que está autenticado pero no autorizado.
 export class ForbiddenError extends AppError {
   constructor(message = 'Forbidden') { super(message, 403, 'FORBIDDEN'); }
 }
 
+// ¿Qué? 404 Not Found — el recurso solicitado no existe en la base de datos.
+// ¿Para qué? Comunicar al cliente que la entidad buscada (usuario, token, etc.) no fue hallada.
+// ¿Impacto? El cliente puede mostrar un mensaje apropiado sin confundirlo con un error del servidor.
 export class NotFoundError extends AppError {
   constructor(message = 'Not found') { super(message, 404, 'NOT_FOUND'); }
 }
 
+// ¿Qué? 409 Conflict — el recurso ya existe y no se puede crear duplicado.
+// ¿Para qué? Indicar al cliente que el dato que intenta registrar viola una restricción
+//   de unicidad, como un email ya registrado.
+// ¿Impacto? El cliente puede mostrar "este email ya está en uso" sin ambigüedad.
 export class ConflictError extends AppError {
   constructor(message: string) { super(message, 409, 'CONFLICT'); }
 }
