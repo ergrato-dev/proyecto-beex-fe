@@ -26,20 +26,35 @@ import { PoliticaCookiesPage } from '@/pages/PoliticaCookiesPage';
 
 function App() {
   return (
-    // AuthProvider envuelve todo para que cualquier componente pueda usar useAuth().
+    // ¿Qué? AuthProvider envuelve todo el árbol para que cualquier componente pueda usar useAuth().
+    // ¿Para qué? Sin este wrapper, useAuth() lanzaría un error porque el contexto estaría undefined.
+    // ¿Impacto? Debe ser el componente más externo — si se coloca dentro de BrowserRouter,
+    //   los hooks de navegación (useNavigate) no estarían disponibles dentro del Provider.
     <AuthProvider>
+      {/* ¿Qué? BrowserRouter habilita la navegación del lado del cliente con la History API.
+          ¿Para qué? Permite navegar entre páginas sin recargar el servidor (SPA).
+          ¿Impacto? Sin BrowserRouter, todos los hooks de react-router (useNavigate, Link) fallan. */}
       <BrowserRouter>
+        {/* ¿Qué? Routes evalúa las rutas en orden y renderiza solo la primera que coincide.
+            ¿Para qué? Evitar que múltiples rutas se rendericen al mismo tiempo.
+            ¿Impacto? Es el reemplazo del antiguo Switch — más preciso y predecible. */}
         <Routes>
-          {/* Rutas publicas */}
+          {/* ─── Rutas públicas — accesibles sin autenticación ─── */}
           <Route path="/" element={<Layout><LandingPage /></Layout>} />
           <Route path="/login" element={<Layout><LoginPage /></Layout>} />
           <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
           <Route path="/forgot-password" element={<Layout><ForgotPasswordPage /></Layout>} />
           <Route path="/reset-password" element={<Layout><ResetPasswordPage /></Layout>} />
-          {/* /verify-email?token=xxx — enlace del email de activación de cuenta */}
+          {/* ¿Qué? /verify-email?token=xxx — enlace del email de activación de cuenta.
+              ¿Para qué? El usuario llega aquí al hacer clic en el email de bienvenida.
+              ¿Impacto? La página extrae el token del query param y llama a la API automáticamente. */}
           <Route path="/verify-email" element={<Layout><VerifyEmailPage /></Layout>} />
 
-          {/* Rutas protegidas */}
+          {/* ─── Rutas protegidas — requieren sesión activa ─── */}
+          {/* ¿Qué? ProtectedRoute comprueba isAuthenticated antes de renderizar el hijo.
+              ¿Para qué? Si el usuario no está autenticado, redirige al /login.
+              ¿Impacto? Sin este wrapper, las rutas privadas serían accesibles a cualquiera
+                que conozca la URL directa. */}
           <Route
             path="/dashboard"
             element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>}
@@ -49,13 +64,15 @@ function App() {
             element={<ProtectedRoute><Layout><ChangePasswordPage /></Layout></ProtectedRoute>}
           />
 
-          {/* Paginas legales y contacto */}
+          {/* ─── Páginas legales y contacto ─── */}
           <Route path="/terminos-de-uso" element={<Layout><TerminosDeUsoPage /></Layout>} />
           <Route path="/politica-privacidad" element={<Layout><PoliticaPrivacidadPage /></Layout>} />
           <Route path="/politica-cookies" element={<Layout><PoliticaCookiesPage /></Layout>} />
           <Route path="/contacto" element={<Layout><ContactPage /></Layout>} />
 
-          {/* 404 */}
+          {/* ¿Qué? Ruta comodín path="*" — captura cualquier URL no definida arriba.
+              ¿Para qué? Mostrar una página 404 amigable en lugar de pantalla en blanco.
+              ¿Impacto? Sin esta ruta, las URLs incorrectas renderizarían nada. */}
           <Route
             path="*"
             element={

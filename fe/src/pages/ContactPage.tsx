@@ -30,12 +30,19 @@ export function ContactPage() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ¿Qué? Actualiza el campo del formulario (name o textarea) usando su atributo name.
+  // ¿Para qué? Manejar los cuatro campos (name, email, subject, message) con un handler único.
+  // ¿Impacto? Evita duplicar onChange handlers — el campo se identifica por e.target.name.
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // ¿Qué? Simula el envío del formulario de contacto.
+  // ¿Para qué? En un proyecto real llamaría a POST /api/v1/contact; aquí simula
+  //   el delay HTTP para mostrar al aprendiz cómo se maneja el estado de loading.
+  // ¿Impacto? Demuestra el patrón isLoading → fetch → setSuccess sin depender de la API real.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

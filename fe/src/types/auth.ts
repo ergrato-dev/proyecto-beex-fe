@@ -71,12 +71,19 @@ export interface UpdateLocaleRequest {
 }
 
 // ¿Qué? Estructura genérica de respuesta exitosa de la API.
+// ¿Para qué? El backend siempre envuelve los datos en { success: true, data: T };
+//   este tipo garantiza que el frontend espere esa forma antes de usar los datos.
+// ¿Impacto? Si el backend cambia el envelope, TypeScript detectará el desajuste aquí.
 export interface ApiResponse<T> {
   success: true;
   data: T;
 }
 
 // ¿Qué? Estructura genérica de respuesta de error de la API.
+// ¿Para qué? El interceptor de axios extrae el campo `error` de esta estructura
+//   y lo lanza como Error para que los componentes puedan mostrarlo.
+// ¿Impacto? Sin este tipo el interceptor no sabría qué forma tiene el cuerpo del error,
+//   y tendría que tratar la respuesta como `unknown`.
 export interface ApiErrorResponse {
   success: false;
   error: string;

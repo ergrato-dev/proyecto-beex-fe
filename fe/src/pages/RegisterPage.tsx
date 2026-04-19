@@ -46,6 +46,11 @@ export function RegisterPage() {
   // ¿Impacto? Sin este estado el usuario iría al dashboard y encontraría un bloqueo (403).
   const [registered, setRegistered] = useState(false);
 
+  // ¿Qué? Actualiza el campo correspondiente en formData usando el atributo name del input.
+  // ¿Para qué? Manejar los cuatro campos del formulario con un solo handler genérico,
+  //   limpiando simultáneamente el error del campo que el usuario está corrigiendo.
+  // ¿Impacto? Sin el borrado del error, el mensaje de error quedaría visible aunque
+  //   el usuario ya haya corregido el campo, creando confusión.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));

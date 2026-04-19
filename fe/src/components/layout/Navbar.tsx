@@ -17,6 +17,11 @@ export function Navbar() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // ¿Qué? Ejecuta el cierre de sesión y redirige al login.
+  // ¿Para qué? Limpiar el estado de auth (tokens + contexto) y llevar al usuario a
+  //   la única ruta pública donde puede volver a autenticarse.
+  // ¿Impacto? Sin navigate('/login'), el usuario quedaría en una ruta protegida que
+  //   luego lo redireccionaría de todos modos, generando un parpadeo innecesario.
   const handleLogout = () => {
     logout();
     navigate('/login');

@@ -41,12 +41,24 @@ export function ChangePasswordPage() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ¿Qué? Actualiza el campo correspondiente en formData usando el atributo name del input.
+  // ¿Para qué? Manejar los tres campos del formulario con un solo handler reutilizable.
+  // ¿Impacto? También limpia el error del campo y el error del servidor para que
+  //   el usuario reciba feedback inmediato al corregir su entrada.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));
     setServerError(null);
   };
 
+  // ¿Qué? Valida las tres reglas de negocio del cambio de contraseña antes de llamar a la API.
+  // ¿Para qué? Evitar llamadas innecesarias al servidor cuando los datos son obviamente inválidos,
+  //   y dar feedback inmediato al usuario sin round-trip HTTP.
+  // ¿Impacto? Reglas validadas:
+  //   1. La contraseña actual no puede estar vacía.
+  //   2. La nueva contraseña debe tener fuerza mínima (mayúscula + minúscula + dígito + 8 chars).
+  //   3. La nueva NO puede ser igual a la actual (sin cambio real).
+  //   4. La confirmación debe coincidir con la nueva (typo prevention).
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
 

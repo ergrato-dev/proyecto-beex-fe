@@ -31,7 +31,13 @@ export function useTheme() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // ¿Qué? Función que alterna entre 'light' y 'dark'.
+  // ¿Para qué? Exponer al usuario un control explícito de tema — el useEffect
+  //   se encarga de aplicar el cambio al DOM y guardarlo en localStorage.
+  // ¿Impacto? Cada llamada a toggleTheme activa el useEffect que actualiza <html class>.
   const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
 
+  // ¿Qué? Exponer solo lo necesario: el valor actual del tema y la función para cambiarlo.
+  // ¿Para qué? Encapsular el estado interno; los componentes no necesitan conocer setTheme.
   return { theme, toggleTheme };
 }

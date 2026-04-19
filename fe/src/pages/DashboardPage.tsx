@@ -19,6 +19,11 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
+  // ¿Qué? Cierra la sesión del usuario y lo redirige al login.
+  // ¿Para qué? Limpiar los tokens del localStorage y el estado del contexto,
+  //   dejando la app en estado no-autenticado antes de la redirección.
+  // ¿Impacto? Sin navigate('/login'), el usuario vería el dashboard vacío
+  //   (sin user) hasta que ProtectedRoute lo redirijera automáticamente.
   const handleLogout = () => {
     logout();
     navigate('/login');
