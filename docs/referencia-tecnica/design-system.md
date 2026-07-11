@@ -67,7 +67,7 @@ Con el sistema `brand-*`, **cambiar de stack requiere editar 4 líneas en un sol
 | Stack                  | Proyecto              | Color Tailwind | Matiz visual          |
 | ---------------------- | --------------------- | -------------- | --------------------- |
 | **Express.js**         | `proyecto-beex-fe`    | `blue`         | Azul clásico Node.js  |
-| **FastAPI**            | `proyecto-be-fe`      | `emerald`      | Verde teal de Python  |
+| **FastAPI**            | `proyecto-be_fastapi-fe_react` | `emerald`      | Verde teal de Python  |
 | **Next.js fullstack**  | `proyecto-be-fe-next` | `violet`       | Violeta moderno       |
 | **Spring Boot Java**   | `proyecto-besb-fe`    | `amber`        | Naranja del ecosistema Java |
 | **Spring Boot Kotlin** | `proyecto-besbk-fe`   | `fuchsia`      | Magenta del logo Kotlin |

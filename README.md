@@ -17,6 +17,15 @@ Incluye landing page pública, registro, login, cambio y recuperación de contra
 
 ---
 
+## 📝 Antes de empezar
+
+Este repo **no es solo para clonar y cambiar el look**. Antes de presentarlo como evidencia de
+aprendizaje, completa la [**Bitácora obligatoria**](BITACORA.md) — es un checklist secuencial
+que verifica, con commits de tu propio repo, que entendiste el flujo real (arquitectura, auth,
+base de datos) y no solo la apariencia.
+
+---
+
 ## 📋 Tabla de Contenidos
 
 - [🛠️ Stack Tecnológico](#️-stack-tecnológico)
@@ -366,6 +375,8 @@ Para las reglas completas, ver [`.github/copilot-instructions.md`](.github/copil
 
 | Documento                                                                                        | Descripción                                               |
 | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| [`BITACORA.md`](BITACORA.md)                                                                    | Checklist obligatorio de aprendizaje, fase por fase        |
+| [`AUDITORIA.md`](AUDITORIA.md)                                                                  | Auditoría de pertinencia/relevancia/completitud/actualidad/seguridad |
 | [`docs/setup/con-docker.md`](docs/setup/con-docker.md)                                         | Setup recomendado: Docker para infraestructura + Node.js nativo |
 | [`docs/setup/sin-docker.md`](docs/setup/sin-docker.md)                                         | Setup alternativo: PostgreSQL y Node.js 100% nativos      |
 | [`docs/referencia-tecnica/architecture.md`](docs/referencia-tecnica/architecture.md)           | Arquitectura general, flujos y decisiones técnicas        |
@@ -390,7 +401,7 @@ incluye comentarios pedagógicos que explican:
 - **¿Impacto?** — Qué pasa si no existiera o si se implementa mal
 
 Es la versión **Express.js** del mismo dominio funcional implementado con **FastAPI + Python**
-en [`ergrato-dev/proyecto-be-fe`](https://github.com/ergrato-dev/proyecto-be-fe).
+en [`ergrato-dev/proyecto-be_fastapi-fe_react`](https://github.com/ergrato-dev/proyecto-be_fastapi-fe_react).
 La comparación entre ambos stacks es parte del proceso de aprendizaje.
 
 > _"La calidad no es una opción, es una obligación."_

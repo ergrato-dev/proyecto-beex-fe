@@ -902,7 +902,7 @@ Cada stack del sistema educativo tiene un color de acento único para identifica
 | Stack                  | Proyecto              | Color Tailwind | Shades en `@theme`       |
 | ---------------------- | --------------------- | -------------- | ------------------------ |
 | **Express.js**         | `proyecto-beex-fe`    | `blue`         | `var(--color-blue-*)`    |
-| **FastAPI**            | `proyecto-be-fe`      | `emerald`      | `var(--color-emerald-*)` |
+| **FastAPI**            | `proyecto-be_fastapi-fe_react` | `emerald`      | `var(--color-emerald-*)` |
 | **Next.js fullstack**  | `proyecto-be-fe-next` | `violet`       | `var(--color-violet-*)`  |
 | **Spring Boot Java**   | `proyecto-besb-fe`    | `amber`        | `var(--color-amber-*)`   |
 | **Spring Boot Kotlin** | `proyecto-besbk-fe`   | `fuchsia`      | `var(--color-fuchsia-*)` |
