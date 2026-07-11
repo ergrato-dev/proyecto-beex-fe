@@ -41,6 +41,10 @@ app.use(express.json());
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 10,
+  // ¿Qué? En entorno de tests se deshabilita el rate limit para evitar 429
+  // por la ráfaga de peticiones que genera el suite de tests.
+  // ¿Impacto? No afecta producción — NODE_ENV=test solo lo setea Vitest.
+  skip: () => process.env.NODE_ENV === 'test',
   standardHeaders: true,
   legacyHeaders: false,
   message: {

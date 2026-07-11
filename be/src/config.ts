@@ -25,8 +25,17 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
 });
 
+// ¿Qué? Ejecuta la validación del schema sobre las variables de entorno actuales.
+// ¿Para qué? Obtener un resultado tipado: éxito con datos validados o error con detalle.
+// ¿Impacto? safeParse no lanza excepción — permite mostrar un mensaje de error legible
+//   antes de terminar el proceso, a diferencia de parse() que lanzaría una excepción cruda.
 const parsed = envSchema.safeParse(process.env);
 
+// ¿Qué? Si la validación falla, imprime los errores campo por campo y detiene la app.
+// ¿Para qué? Implementar el patrón "fail fast" — es mejor fallar al iniciar con un
+//   mensaje claro que fallar silenciosamente en medio de una request de producción.
+// ¿Impacto? process.exit(1) asegura que el proceso termina con código de error,
+//   lo que Docker/PM2/Kubernetes interpretan como fallo de inicio y no reintentan indefinidamente.
 if (!parsed.success) {
   console.error('❌ Invalid environment variables:');
   console.error(parsed.error.flatten().fieldErrors);

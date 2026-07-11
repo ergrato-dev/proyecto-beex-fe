@@ -15,6 +15,7 @@ import type {
   ChangePasswordInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  VerifyEmailInput,
 } from './auth.schema.js';
 
 // ¿Qué? Registra un nuevo usuario.
@@ -33,9 +34,12 @@ export async function register(
 }
 
 // ¿Qué? Inicia sesión y entrega access + refresh token.
+// ¿Para qué? La IP del cliente se pasa al service para el audit log de seguridad.
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const tokens = await authService.loginUser(req.body as LoginInput);
+    // ¿Qué? req.ip puede ser undefined en Express 5 — se usa 'unknown' como fallback seguro.
+    const ip = req.ip ?? 'unknown';
+    const tokens = await authService.loginUser(req.body as LoginInput, ip);
     res.status(200).json({ success: true, data: tokens });
   } catch (err) {
     next(err);
@@ -94,6 +98,25 @@ export async function resetPassword(
   try {
     await authService.resetUserPassword(req.body as ResetPasswordInput);
     res.status(200).json({ success: true, message: 'Contraseña restablecida correctamente.' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ¿Qué? Verifica el email del usuario usando el token del enlace de activación.
+// ¿Para qué? Completar el flujo de registro: activar la cuenta para permitir el login.
+// ¿Impacto? Hasta que este endpoint sea llamado con un token válido, el login retorna 403.
+export async function verifyEmail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    await authService.verifyEmail(req.body as VerifyEmailInput);
+    res.status(200).json({
+      success: true,
+      message: 'Email verificado correctamente. Ya puedes iniciar sesión.',
+    });
   } catch (err) {
     next(err);
   }

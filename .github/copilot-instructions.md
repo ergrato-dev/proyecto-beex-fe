@@ -171,11 +171,12 @@ pnpm add paquete@X.Y.Z      # ✅ versión exacta verificada
 
 #### Versiones con CVE conocidos en este proyecto — historial
 
-| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                           | Versión segura instalada |
-| ------------ | ------------------- | --------------------- | ---------------------------------------------------------- | ------------------------ |
-| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                          | `1.14.0` ✅              |
-| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                  | `4.2.1` ✅               |
-| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection | `8.0.4` ✅               |
+| Paquete      | Versiones afectadas | Severidad             | CVE / Referencia                                                          | Versión / Fix aplicado                                                       |
+| ------------ | ------------------- | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `axios`      | `1.13.0 – 1.13.4`   | High                  | CSRF/SSRF — supply chain incident                                         | `1.14.0` ✅                                                                  |
+| `jspdf`      | `< 4.2.1`           | Medium                | 2 vulns en `4.2.0`, Critical en `< 4.0.0`                                 | `4.2.1` ✅                                                                   |
+| `nodemailer` | `6.x – ≤7.0.10`     | High + Moderate + Low | DoS (addressparser), email domain spoofing, SMTP injection                | `8.0.4` ✅                                                                   |
+| `esbuild`    | `≤ 0.24.2`          | Moderate              | GHSA-67mh-4wv8-2f99 — dev server CORS bypass (acepta peticiones externas) | `pnpm.overrides "esbuild": "0.27.7"` + `vitest@4.1.2` + `vite@8.0.3` (BE) ✅ |
 
 > Actualizar esta tabla cada vez que se detecte o resuelva una vulnerabilidad en una dependencia del proyecto.
 
@@ -216,7 +217,70 @@ yarn install       # ← PROHIBIDO
 
 Si algún tutorial o documentación sugiere `npm`, reemplazar por el equivalente `pnpm`.
 
-### 4.2 Variables de entorno
+### 4.2 ⛔ Regla de Oro — Pinning de dependencias (OBLIGATORIO)
+
+> **Versiones flotantes = builds no reproducibles = riesgo de CVE silencioso.**
+
+#### Prohibido en `package.json`
+
+```json
+// ❌ NUNCA — rangos de versión flotantes
+"tailwindcss": "^4.1.0",
+"vite": "~6.2.0",
+"react": ">=19.0.0",
+"esbuild": "*",
+"axios": "latest"
+```
+
+#### Obligatorio — versiones exactas siempre
+
+```json
+// ✅ SIEMPRE — versión exacta, sin prefijos
+"tailwindcss": "4.1.0",
+"vite": "8.0.3",
+"react": "19.1.0",
+"esbuild": "0.27.7"
+```
+
+#### Para dependencias transitivas vulnerables → `pnpm.overrides`
+
+Cuando una dependencia de tercer nivel (transitiva) tiene un CVE y no se puede actualizar el padre:
+
+```json
+// ✅ Correcto — forzar versión segura de transitive dep
+"pnpm": {
+  "overrides": {
+    "esbuild": "0.27.7"
+  }
+}
+```
+
+Caso real de este proyecto: `drizzle-kit` traía `esbuild@0.18.20` y `0.19.12` (CVE GHSA-67mh-4wv8-2f99). Se resolvió con `pnpm.overrides` + upgrade de `vitest` + `vite` a versiones que usan `esbuild ≥ 0.25.0`.
+
+#### Cómo pnpm enforce versiones exactas automáticamente
+
+```bash
+# Global (ya configurado en ~/.config/pnpm/rc)
+save-exact=true
+
+# También en cada workspace del repo (.npmrc)
+save-exact=true
+```
+
+Con `save-exact=true`, cualquier `pnpm add` guarda la versión instalada exacta, nunca con `^` ni `~`.
+
+#### Motivación
+
+| Riesgo                  | Detalle                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| CVEs silenciosos        | Un rango como `^4.0.0` puede instalar `4.9.9` con vulnerabilidades sin aviso |
+| Builds no reproducibles | Dos `pnpm install` en fechas distintas → resultados distintos                |
+| Supply-chain attacks    | Una actualización automática puede inyectar código malicioso                 |
+| Auditorías inútiles     | No se puede fijar qué versión se ejecuta en producción                       |
+
+---
+
+### 4.3 Variables de entorno
 
 - NUNCA hardcodear credenciales, URLs de base de datos, secrets, o configuración sensible
 - Usar archivos `.env` (no versionados en git)
@@ -250,7 +314,7 @@ proyecto/                          # Raíz del monorepo
 ├── docker-compose.yml             # Servicios: PostgreSQL 17 + Mailpit
 ├── README.md                      # Documentación principal del proyecto
 │
-├── _docs/                         # 📚 Documentación del proyecto
+├── docs/                         # 📚 Documentación del proyecto
 │   ├── referencia-tecnica/
 │   │   ├── architecture.md        # Arquitectura general y diagramas
 │   │   ├── api-endpoints.md       # Documentación de todos los endpoints
@@ -815,41 +879,68 @@ Para emails en desarrollo sin Docker, usar [Mailpit standalone](https://mailpit.
 
 ### 14.4 Diseño y UX/UI — OBLIGATORIO
 
-| Aspecto           | Regla                                                             |
-| ----------------- | ----------------------------------------------------------------- |
-| Temas             | Dark mode y Light mode con toggle — usar `prefers-color-scheme`   |
-| Tipografía        | Fuentes sans-serif exclusivamente (Inter, system-ui)              |
-| Colores           | Sólidos y planos — SIN degradados (gradient) en ningún lugar      |
-| Estilo visual     | Diseño moderno, limpio, minimalista con excelente UX/UI           |
-| Botones de acción | Siempre alineados a la derecha (`justify-end`)                    |
-| Spacing           | Usar escala consistente de Tailwind (p-4, gap-6, space-y-4)       |
-| Bordes            | Sutiles (`border border-gray-200 dark:border-gray-700`)           |
-| Transiciones      | Suaves en hover/focus (`transition-colors duration-200`)          |
-| Responsividad     | Mobile-first — los formularios de auth deben verse bien en móvil  |
-| Accesibilidad     | Labels en inputs, aria-\* básicos, contraste suficiente (WCAG AA) |
+| Aspecto           | Regla                                                                    |
+| ----------------- | ------------------------------------------------------------------------ |
+| Temas             | Dark mode y Light mode con toggle — class-based (`@custom-variant dark`) |
+| Dark palette      | `slate-*` — tiene subtono azul, da identidad al dark mode                |
+| Tipografía        | Fuentes sans-serif exclusivamente (Inter, system-ui)                     |
+| Colores           | Sólidos y planos — SIN degradados (gradient) en ningún lugar             |
+| Color de acento   | Usar siempre `brand-*` — NUNCA hardcodear `blue-*` u otro color          |
+| Estilo visual     | Diseño moderno, limpio, minimalista con excelente UX/UI                  |
+| Botones de acción | Siempre alineados a la derecha (`justify-end`)                           |
+| Spacing           | Usar escala consistente de Tailwind (p-4, gap-6, space-y-4)              |
+| Bordes            | Sutiles (`border border-gray-200 dark:border-slate-700`)                 |
+| Transiciones      | Suaves en hover/focus (`transition-colors duration-200`)                 |
+| Responsividad     | Mobile-first — los formularios de auth deben verse bien en móvil         |
+| Accesibilidad     | Labels en inputs, aria-\* básicos, contraste suficiente (WCAG AA)        |
+
+#### Sistema de color de marca — `brand-*`
+
+El FE usa variables CSS `brand-{400,500,600,800}` en lugar de un color hardcodeado.
+Cada stack del sistema educativo tiene un color de acento único para identificación visual inmediata.
+
+| Stack                  | Proyecto              | Color Tailwind | Shades en `@theme`       |
+| ---------------------- | --------------------- | -------------- | ------------------------ |
+| **Express.js**         | `proyecto-beex-fe`    | `blue`         | `var(--color-blue-*)`    |
+| **FastAPI**            | `proyecto-be-fe`      | `emerald`      | `var(--color-emerald-*)` |
+| **Next.js fullstack**  | `proyecto-be-fe-next` | `violet`       | `var(--color-violet-*)`  |
+| **Spring Boot Java**   | `proyecto-besb-fe`    | `amber`        | `var(--color-amber-*)`   |
+| **Spring Boot Kotlin** | `proyecto-besbk-fe`   | `fuchsia`      | `var(--color-fuchsia-*)` |
+| **Go REST API**        | `proyecto-bego-fe`    | `cyan`         | `var(--color-cyan-*)`    |
+
+Para adaptar el FE a otro stack, **solo cambia el bloque `@theme` en `fe/src/index.css`**:
+
+```css
+/* Express.js → blue */
+@theme {
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-500: var(--color-blue-500);
+  --color-brand-600: var(--color-blue-600);
+  --color-brand-800: var(--color-blue-800);
+}
+
+/* FastAPI → emerald */
+@theme {
+  --color-brand-400: var(--color-emerald-400);
+  --color-brand-500: var(--color-emerald-500);
+  --color-brand-600: var(--color-emerald-600);
+  --color-brand-800: var(--color-emerald-800);
+}
+```
 
 ```tsx
-// ✅ CORRECTO — Botón de acción a la derecha, sin degradados, sans-serif
-<div className="flex justify-end gap-3">
-  <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
-    bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600
-    rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-    Cancelar
-  </button>
-  <button className="px-4 py-2 text-sm font-medium text-white
-    bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600
-    rounded-lg transition-colors">
-    Guardar
-  </button>
-</div>
+// ✅ CORRECTO — usa brand-* para que cambie con el stack
+<button className="bg-brand-600 hover:bg-brand-700 text-white ...">
+  Guardar
+</button>
 
-// ❌ INCORRECTO — Degradados, botones centrados, fuente serif
-<div className="flex justify-center">
-  <button className="bg-gradient-to-r from-blue-500 to-purple-500 font-serif">
-    Guardar
-  </button>
-</div>
+// ❌ INCORRECTO — color hardcodeado, rompe el sistema de marca
+<button className="bg-blue-600 hover:bg-blue-700 text-white ...">
+  Guardar
+</button>
 ```
+
+Ver guía completa: [`docs/referencia-tecnica/design-system.md`](../docs/referencia-tecnica/design-system.md)
 
 ---
 
@@ -948,9 +1039,9 @@ Para emails en desarrollo sin Docker, usar [Mailpit standalone](https://mailpit.
 
 ### Fase 8 — Documentación Final
 
-- [ ] Completar `_docs/referencia-tecnica/architecture.md`
-- [ ] Completar `_docs/referencia-tecnica/api-endpoints.md`
-- [ ] Completar `_docs/referencia-tecnica/database-schema.md`
+- [ ] Completar `docs/referencia-tecnica/architecture.md`
+- [ ] Completar `docs/referencia-tecnica/api-endpoints.md`
+- [ ] Completar `docs/referencia-tecnica/database-schema.md`
 - [ ] Completar documentos de conceptos y requisitos
 - [ ] Actualizar `README.md` con instrucciones finales
 

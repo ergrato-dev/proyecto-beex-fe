@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" width="1200" height="260">
+  <defs>
+    <!-- Dot grid texture -->
+    <pattern id="dp" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.9" fill="#1c2128"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="260" fill="#0d1117"/>
+  <rect width="1200" height="260" fill="url(#dp)" opacity="0.65"/>
+
+  <!-- Top accent strip (left 300px) -->
+  <rect x="0" y="0" width="300" height="3" fill="#3b82f6"/>
+
+  <!-- Left vertical accent bar -->
+  <rect x="48" y="28" width="3" height="200" fill="#3b82f6"/>
+
+  <!-- ===== LOCK ICON ===== -->
+  <!-- Shackle arc (arch from x=76 to x=116, peak at y=92) -->
+  <path d="M76 128 L76 110 Q76 92 96 92 Q116 92 116 110 L116 128"
+        fill="none" stroke="#3b82f6" stroke-width="3.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lock body -->
+  <rect x="66" y="126" width="60" height="44" rx="7"
+        fill="none" stroke="#3b82f6" stroke-width="3.5"/>
+  <!-- Keyhole circle -->
+  <circle cx="96" cy="142" r="6" fill="#3b82f6"/>
+  <!-- Keyhole slot -->
+  <rect x="93" y="142" width="6" height="13" rx="3" fill="#3b82f6"/>
+
+  <!-- ===== MAIN TITLE ===== -->
+  <text x="152" y="126"
+    font-family="system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+    font-size="58" font-weight="800" fill="#f0f6fc" letter-spacing="-1.5">NN Auth System</text>
+
+  <!-- ===== SUBTITLE ===== -->
+  <text x="155" y="160"
+    font-family="system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+    font-size="15" font-weight="400" fill="#8b949e" letter-spacing="2.5">EXPRESS EDITION  ·  PROYECTO EDUCATIVO SENA  ·  2026</text>
+
+  <!-- Thin divider -->
+  <rect x="154" y="176" width="590" height="1" fill="#21262d"/>
+
+  <!-- ===== TECH BADGES ===== -->
+  <!-- Node.js -->
+  <rect x="154" y="189" width="80" height="24" rx="4" fill="#0b2618" stroke="#1a7f37" stroke-width="1"/>
+  <text x="194" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#3fb950">Node 20</text>
+
+  <!-- Express -->
+  <rect x="244" y="189" width="82" height="24" rx="4" fill="#111720" stroke="#30363d" stroke-width="1"/>
+  <text x="285" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#adbac7">Express 5</text>
+
+  <!-- React -->
+  <rect x="336" y="189" width="76" height="24" rx="4" fill="#051929" stroke="#1f6feb" stroke-width="1"/>
+  <text x="374" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#58a6ff">React 19</text>
+
+  <!-- TypeScript -->
+  <rect x="422" y="189" width="96" height="24" rx="4" fill="#07192e" stroke="#1f6feb" stroke-width="1"/>
+  <text x="470" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#79c0ff">TypeScript 5</text>
+
+  <!-- PostgreSQL -->
+  <rect x="528" y="189" width="104" height="24" rx="4" fill="#071a2e" stroke="#1158a3" stroke-width="1"/>
+  <text x="580" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#60a5fa">PostgreSQL 17</text>
+
+  <!-- Drizzle ORM -->
+  <rect x="642" y="189" width="88" height="24" rx="4" fill="#141b08" stroke="#3d5016" stroke-width="1"/>
+  <text x="686" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#a8cc4a">Drizzle ORM</text>
+
+  <!-- Vitest -->
+  <rect x="740" y="189" width="68" height="24" rx="4" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1"/>
+  <text x="774" y="205" text-anchor="middle"
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#a371f7">Vitest</text>
+
+  <!-- ===== RIGHT HEXAGONAL DECORATION ===== -->
+  <!-- Center: (1060, 130) — pointed-top hexagon -->
+  <!-- Outer hex (r=76): top(1060,54), top-right(1126,92), bot-right(1126,168), bot(1060,206), bot-left(994,168), top-left(994,92) -->
+  <polygon points="1060,54 1126,92 1126,168 1060,206 994,168 994,92"
+           fill="none" stroke="#21262d" stroke-width="2"/>
+
+  <!-- Inner hex (r=48): top(1060,82), tr(1102,106), br(1102,154), bot(1060,178), bl(1018,154), tl(1018,106) -->
+  <polygon points="1060,82 1102,106 1102,154 1060,178 1018,154 1018,106"
+           fill="none" stroke="#1c2128" stroke-width="1.5"/>
+
+  <!-- Radii from center to outer vertices -->
+  <line x1="1060" y1="130" x2="1060" y2="54"  stroke="#1c2128" stroke-width="1"/>
+  <line x1="1060" y1="130" x2="1126" y2="92"  stroke="#1c2128" stroke-width="1"/>
+  <line x1="1060" y1="130" x2="1126" y2="168" stroke="#1c2128" stroke-width="1"/>
+  <line x1="1060" y1="130" x2="1060" y2="206" stroke="#1c2128" stroke-width="1"/>
+  <line x1="1060" y1="130" x2="994"  y2="168" stroke="#1c2128" stroke-width="1"/>
+  <!-- One accent radius in blue -->
+  <line x1="1060" y1="130" x2="994"  y2="92"  stroke="#3b82f6" stroke-width="1.5" opacity="0.45"/>
+
+  <!-- Outer vertex dots -->
+  <circle cx="1060" cy="54"  r="4.5" fill="#3b82f6"/>
+  <circle cx="1126" cy="92"  r="3.5" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+  <circle cx="1126" cy="168" r="3.5" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+  <circle cx="1060" cy="206" r="3.5" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+  <circle cx="994"  cy="168" r="3.5" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+  <circle cx="994"  cy="92"  r="4"   fill="#3b82f6" opacity="0.5"/>
+
+  <!-- Center circle with miniature lock -->
+  <circle cx="1060" cy="130" r="30" fill="#0d1117" stroke="#21262d" stroke-width="2"/>
+  <!-- Mini lock shackle -->
+  <path d="M1053 130 L1053 124 Q1053 117 1060 117 Q1067 117 1067 124 L1067 130"
+        fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+  <!-- Mini lock body -->
+  <rect x="1050" y="129" width="20" height="16" rx="3"
+        fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <!-- Mini keyhole -->
+  <circle cx="1060" cy="137" r="3" fill="#3b82f6"/>
+  <rect x="1059" y="137" width="2" height="5" rx="1" fill="#3b82f6"/>
+
+  <!-- ===== BOTTOM BORDER ===== -->
+  <rect x="0" y="257" width="1200" height="3" fill="#161b22"/>
+  <!-- Right accent segment matching the top-left -->
+  <rect x="900" y="257" width="300" height="3" fill="#3b82f6"/>
+</svg>

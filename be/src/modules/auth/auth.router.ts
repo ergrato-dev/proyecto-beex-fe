@@ -16,6 +16,7 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  verifyEmailSchema,
 } from './auth.schema.js';
 
 const router: IRouter = Router();
@@ -44,5 +45,10 @@ router.post('/forgot-password', validate(forgotPasswordSchema), authController.f
 
 // POST /api/v1/auth/reset-password — Restablecer contraseña con token
 router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
+
+// POST /api/v1/auth/verify-email — Verificar email con token de activación
+// ¿Qué? Solo requiere el token del enlace — no necesita JWT (el usuario aún no puede loguearse).
+// ¿Para qué? Activar la cuenta para que el usuario pueda iniciar sesión.
+router.post('/verify-email', validate(verifyEmailSchema), authController.verifyEmail);
 
 export default router;

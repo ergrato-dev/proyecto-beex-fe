@@ -11,6 +11,11 @@ import { config } from './config.js';
 
 const PORT = config.PORT;
 
+// ¿Qué? Arranca el servidor HTTP de Express en el puerto configurado.
+// ¿Para qué? Poner la API a escuchar conexiones entrantes. Sin esta llamada,
+//   la aplicación no recibe requests aunque esté configurada correctamente.
+// ¿Impacto? Una vez que app.listen() resuelve, la API está lista para recibir tráfico.
+//   El callback imprime información útil para confirmar que el arranque fue exitoso.
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
