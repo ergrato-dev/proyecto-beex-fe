@@ -16,6 +16,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
+  DUMMY_PASSWORD_HASH,
 } from '../../utils/security.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email.js';
 import {
@@ -128,8 +129,11 @@ export async function loginUser(data: LoginInput, ip?: string): Promise<TokenRes
   });
 
   // ¿Qué? Mensaje de error idéntico tanto para email inexistente como contraseña incorrecta.
-  // ¿Para qué? Prevenir user enumeration attacks (OWASP A07).
-  if (!user || !(await verifyPassword(data.password, user.hashedPassword))) {
+  // ¿Para qué? Prevenir user enumeration attacks (OWASP A07). Si el usuario no existe,
+  //   igual se corre bcrypt contra DUMMY_PASSWORD_HASH — si no, el tiempo de respuesta
+  //   sigue delatando qué emails existen aunque el mensaje sea genérico (timing attack).
+  const isPasswordValid = await verifyPassword(data.password, user?.hashedPassword ?? DUMMY_PASSWORD_HASH);
+  if (!user || !isPasswordValid) {
     logLoginFailed('Credenciales inválidas', ip);
     throw new UnauthorizedError('Credenciales inválidas.');
   }

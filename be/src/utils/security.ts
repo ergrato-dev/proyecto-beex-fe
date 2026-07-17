@@ -12,6 +12,14 @@ import { config } from '../config.js';
 
 const SALT_ROUNDS = 12;
 
+// ¿Qué? Hash bcrypt fijo (sin usuario real detrás), usado por loginUser cuando
+//   el email no existe, para comparar contra algo y no saltarse el costo de bcrypt.
+// ¿Para qué? Igualar el tiempo de respuesta del login exista o no el usuario —
+//   el mensaje de error ya es genérico, pero sin esto el timing sigue delatando
+//   qué emails están registrados (OWASP A07).
+export const DUMMY_PASSWORD_HASH =
+  '$2b$12$PP42s5XkiNf/2WWHS19shOf.vg.RJnNq7zCJDTCAmQNCrYZdKV85S';
+
 // ¿Qué? Hashea una contraseña en texto plano con bcrypt.
 // ¿Para qué? Almacenar contraseñas de forma segura — nunca en texto plano.
 // ¿Impacto? Sin hashing, una filtración de la BD expone todas las contraseñas.

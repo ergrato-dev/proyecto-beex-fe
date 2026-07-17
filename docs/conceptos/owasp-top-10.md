@@ -146,6 +146,7 @@ pnpm outdated
 - Access tokens de corta duración (15 min) para minimizar ventana de exposición
 - Refresh tokens de 7 días — permiten renovación sin re-autenticación
 - Mensajes de error genéricos en login (no revelan qué campo falló)
+- Comparación de tiempo constante en login (mitiga timing attacks — ver abajo)
 
 ```typescript
 // ✅ Rate limiting en endpoints de auth
@@ -156,6 +157,30 @@ const authRateLimit = rateLimit({
 });
 
 app.use('/api/v1/auth', authRateLimit);
+```
+
+**Timing attack en login — el mensaje genérico no es suficiente.**
+
+Si el código busca el usuario y solo llama a `bcrypt.compare` cuando existe
+(`if (!user || !(await verifyPassword(...)))`), el branch "usuario no existe"
+responde en microsegundos mientras que "contraseña incorrecta" tarda lo que
+tarda bcrypt (~60-100ms con cost 12). Un atacante puede medir esa diferencia
+con Burp Repeater y enumerar usuarios válidos aunque el mensaje de error sea
+idéntico en ambos casos — el mensaje no es la única señal que existe.
+
+```typescript
+// utils/security.ts — hash fijo sin usuario real detrás
+export const DUMMY_PASSWORD_HASH = '$2b$12$...';
+
+// modules/auth/auth.service.ts
+const user = await db.query.users.findFirst({ where: eq(users.email, data.email) });
+
+// ✅ Si el usuario no existe, igual se corre bcrypt contra DUMMY_PASSWORD_HASH —
+//    ambos branches tardan lo mismo, no hay señal de timing que enumerar.
+const isPasswordValid = await verifyPassword(data.password, user?.hashedPassword ?? DUMMY_PASSWORD_HASH);
+if (!user || !isPasswordValid) {
+  throw new UnauthorizedError('Credenciales inválidas.');
+}
 ```
 
 ---
