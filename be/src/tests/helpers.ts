@@ -6,11 +6,9 @@
  */
 
 import crypto from 'node:crypto';
-import { eq } from 'drizzle-orm';
 import request from 'supertest';
 import app from '../app.js';
 import { db } from '../db/index.js';
-import { users, emailVerificationTokens } from '../db/schema.js';
 
 // ¿Qué? Datos de usuario válido para reutilizar en múltiples tests.
 export const TEST_USER = {
@@ -39,7 +37,7 @@ export async function createVerifiedTestUser(
   const user = await createTestUser(overrides);
   // ¿Qué? Actualización directa en BD para simular la verificación de email.
   // ¿Para qué? Evitar dependencia del sistema de email en los tests de autenticación.
-  await db.update(users).set({ isEmailVerified: true }).where(eq(users.id, user.id));
+  await db.user.update({ where: { id: user.id }, data: { isEmailVerified: true } });
   return user;
 }
 
@@ -60,11 +58,13 @@ export async function createVerificationToken(
   // ¿Qué? expiresIn en milisegundos — por defecto 24 horas; negativo = ya expirado.
   const expiresAt = new Date(Date.now() + (options.expiresIn ?? 24 * 60 * 60 * 1000));
 
-  await db.insert(emailVerificationTokens).values({
-    userId: id,
-    token,
-    expiresAt,
-    used: options.used ?? false,
+  await db.emailVerificationToken.create({
+    data: {
+      userId: id,
+      token,
+      expiresAt,
+      used: options.used ?? false,
+    },
   });
 
   return { userId: id, token };

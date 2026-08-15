@@ -3,7 +3,7 @@
 <!--
   ¿Qué? Documentación del esquema de base de datos: tablas, columnas, relaciones e índices.
   ¿Para qué? Servir como referencia para migraciones, revisiones de código y diseño del sistema.
-  ¿Impacto? Cualquier cambio en el esquema debe reflejarse aquí antes de generar la migración con drizzle-kit.
+  ¿Impacto? Cualquier cambio en el esquema debe reflejarse aquí antes de generar la migración con Prisma.
 -->
 
 ## Tecnologías
@@ -11,9 +11,9 @@
 | Item | Detalle |
 |---|---|
 | Motor | PostgreSQL 17+ |
-| ORM | Drizzle ORM |
-| Migraciones | drizzle-kit |
-| Driver | pg (node-postgres) |
+| ORM | Prisma ORM |
+| Migraciones | Prisma Migrate |
+| Driver | `@prisma/adapter-pg` sobre `pg` (node-postgres) |
 | UUIDs | `gen_random_uuid()` (función nativa de PostgreSQL) |
 
 ---
@@ -202,170 +202,84 @@ CREATE INDEX idx_email_verification_tokens_token ON email_verification_tokens(to
 
 ---
 
-## Definición Drizzle ORM (`src/db/schema.ts`)
+## Definición Prisma (`prisma/schema.prisma`)
 
-```typescript
-import { pgTable, uuid, varchar, boolean, timestamp } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
 
-// Tabla users
-export const users = pgTable('users', {
-  id:                uuid('id').primaryKey().defaultRandom(),
-  email:             varchar('email', { length: 255 }).notNull().unique(),
-  fullName:          varchar('full_name', { length: 255 }).notNull(),
-  hashedPassword:    varchar('hashed_password', { length: 255 }).notNull(),
-  isEmailVerified:   boolean('is_email_verified').notNull().default(false),
-  locale:            varchar('locale', { length: 10 }).notNull().default('es'),
-  isActive:          boolean('is_active').notNull().default(true),
-  createdAt:         timestamp('created_at').notNull().defaultNow(),
-  updatedAt:         timestamp('updated_at').notNull().defaultNow(),
-});
+datasource db {
+  provider = "postgresql"
+}
 
-// Tabla password_reset_tokens
-export const passwordResetTokens = pgTable('password_reset_tokens', {
-  id:        uuid('id').primaryKey().defaultRandom(),
-  userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token:     varchar('token', { length: 255 }).notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  used:      boolean('used').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+model User {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique @db.VarChar(255)
+  fullName       String   @map("full_name") @db.VarChar(255)
+  hashedPassword String   @map("hashed_password") @db.VarChar(255)
+  isActive       Boolean  @default(true) @map("is_active")
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  locale         String   @default("es") @db.VarChar(10)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
 
-// Tabla email_verification_tokens
-export const emailVerificationTokens = pgTable('email_verification_tokens', {
-  id:        uuid('id').primaryKey().defaultRandom(),
-  userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token:     varchar('token', { length: 255 }).notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  used:      boolean('used').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
 
-// Relaciones
-export const usersRelations = relations(users, ({ many }) => ({
-  passwordResetTokens: many(passwordResetTokens),
-  emailVerificationTokens: many(emailVerificationTokens),
-}));
+  @@map("users")
+}
 
-export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
-  user: one(users, {
-    fields: [passwordResetTokens.userId],
-    references: [users.id],
-  }),
-}));
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
 
-export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
-  user: one(users, {
-    fields: [emailVerificationTokens.userId],
-    references: [users.id],
-  }),
-}));
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-// Tipos inferidos
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
-export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
-export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
-export type NewEmailVerificationToken = typeof emailVerificationTokens.$inferInsert;
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verification_tokens")
+}
 ```
+
+Los nombres de campo van en camelCase (convención TypeScript) y se mapean a las columnas
+snake_case reales vía `@map`/`@@map` — la BD no cambia, solo cambia el ORM que la consulta.
 
 ---
 
-## Migraciones con Drizzle Kit
+## Migraciones con Prisma
 
-### Configuración (`drizzle.config.ts`)
+### Configuración del CLI (`prisma.config.ts`)
+
+Desde Prisma 7, la URL de conexión ya no vive en `schema.prisma` — el CLI la lee de
+`prisma.config.ts`, en la raíz de `be/`:
 
 ```typescript
-import { defineConfig } from 'drizzle-kit';
+import 'dotenv/config';
+import { defineConfig, env } from 'prisma/config';
 
 export default defineConfig({
-  schema: './src/db/schema.ts',
-  out: './drizzle/migrations',
-
-2. Usuario hace clic en enlace y envía nueva contraseña
-   → Se busca token en BD
-   → Se verifica: expires_at > NOW() AND used = false
-   → Se actualiza contraseña del usuario
-   → Se marca: used = true
-
-3. Token expirado o ya usado
-   → Se rechaza con 400
-```
-
-### Política de limpieza
-
-Los tokens expirados pueden eliminarse periódicamente:
-
-```sql
--- Borrar tokens expirados hace más de 7 días
-DELETE FROM password_reset_tokens
-WHERE expires_at < NOW() - INTERVAL '7 days';
-```
-
----
-
-## Definición Drizzle ORM (`src/db/schema.ts`)
-
-```typescript
-import { pgTable, uuid, varchar, boolean, timestamp } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-
-// Tabla users
-export const users = pgTable('users', {
-  id:             uuid('id').primaryKey().defaultRandom(),
-  email:          varchar('email', { length: 255 }).notNull().unique(),
-  fullName:       varchar('full_name', { length: 255 }).notNull(),
-  hashedPassword: varchar('hashed_password', { length: 255 }).notNull(),
-  isActive:       boolean('is_active').notNull().default(true),
-  createdAt:      timestamp('created_at').notNull().defaultNow(),
-  updatedAt:      timestamp('updated_at').notNull().defaultNow(),
-});
-
-// Tabla password_reset_tokens
-export const passwordResetTokens = pgTable('password_reset_tokens', {
-  id:        uuid('id').primaryKey().defaultRandom(),
-  userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token:     varchar('token', { length: 255 }).notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  used:      boolean('used').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
-
-// Relaciones
-export const usersRelations = relations(users, ({ many }) => ({
-  passwordResetTokens: many(passwordResetTokens),
-}));
-
-export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
-  user: one(users, {
-    fields: [passwordResetTokens.userId],
-    references: [users.id],
-  }),
-}));
-
-// Tipos inferidos
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
-export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
-```
-
----
-
-## Migraciones con Drizzle Kit
-
-### Configuración (`drizzle.config.ts`)
-
-```typescript
-import { defineConfig } from 'drizzle-kit';
-
-export default defineConfig({
-  schema: './src/db/schema.ts',
-  out: './drizzle/migrations',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
+  schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+  },
+  datasource: {
+    url: env('DATABASE_URL'),
   },
 });
 ```
@@ -373,42 +287,42 @@ export default defineConfig({
 ### Comandos
 
 ```bash
-# Generar migración (compara schema.ts con el estado actual de la BD)
-pnpm drizzle-kit generate
+# Regenerar el cliente de Prisma (tipos TypeScript) desde el schema
+pnpm db:generate
 
-# Aplicar migraciones pendientes
-pnpm drizzle-kit migrate
+# Crear + aplicar una migración nueva a partir de un cambio en schema.prisma (desarrollo)
+pnpm db:migrate:dev
 
-# Ver estado de migraciones
-pnpm drizzle-kit status
+# Aplicar migraciones ya existentes sin crear una nueva (CI / producción)
+pnpm db:migrate
 
-# Abrir Drizzle Studio (interfaz visual de la BD)
-pnpm drizzle-kit studio
+# Ver estado de las migraciones
+pnpm db:status
+
+# Abrir Prisma Studio (interfaz visual de la BD)
+pnpm db:studio
 ```
 
 ### Regla fundamental
 
-> **Nunca alterar la base de datos directamente.** Toda modificación al esquema debe hacerse en `schema.ts` y luego generar + aplicar la migración correspondiente con drizzle-kit.
+> **Nunca alterar la base de datos directamente.** Toda modificación al esquema debe hacerse
+> en `prisma/schema.prisma` y luego generar + aplicar la migración correspondiente con
+> `pnpm db:migrate:dev`.
 
 ---
 
 ## Configuración de Conexión (`src/db/index.ts`)
 
+Prisma 7 requiere un driver adapter explícito — ya no instancia su motor de conexión
+automáticamente a partir de la URL del schema:
+
 ```typescript
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from './schema';
-import { config } from '../config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import { config } from '../config.js';
 
-// Pool de conexiones PostgreSQL
-const pool = new Pool({
-  connectionString: config.DATABASE_URL,
-  max: 10,              // máximo 10 conexiones simultáneas
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+const adapter = new PrismaPg({ connectionString: config.DATABASE_URL });
 
-// Instancia de Drizzle con el schema
-export const db = drizzle(pool, { schema });
+export const db = new PrismaClient({ adapter });
 export type DB = typeof db;
 ```

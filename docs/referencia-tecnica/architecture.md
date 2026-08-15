@@ -12,7 +12,7 @@ NN Auth System es una aplicación web de autenticación construida con arquitect
 
 - **Frontend**: React + Vite, se comunica con el backend exclusivamente vía HTTP (REST API)
 - **Backend**: Express.js + TypeScript, expone una API REST versionada
-- **Base de datos**: PostgreSQL 17, accedida exclusivamente a través de Drizzle ORM
+- **Base de datos**: PostgreSQL 17, accedida exclusivamente a través de Prisma ORM
 - **Email (dev)**: Mailpit captura los emails SMTP localmente para pruebas
 
 ```
@@ -26,7 +26,7 @@ NN Auth System es una aplicación web de autenticación construida con arquitect
                         ▼
 ┌─────────────────────────────────────────────────────────┐
 │                  BACKEND (Express.js)                    │
-│             Node.js 20 + TypeScript + Drizzle            │
+│             Node.js 20 + TypeScript + Prisma             │
 │                   localhost:3000                         │
 │                                                          │
 │  helmet │ cors │ rate-limit │ zod │ jsonwebtoken │ bcrypt │
@@ -80,7 +80,7 @@ HTTP Request
        │
        ▼
 ┌─────────────┐
-│  Drizzle DB │  Consultas type-safe a PostgreSQL
+│  Prisma DB  │  Consultas type-safe a PostgreSQL
 │  (db/index  │  Nunca SQL crudo sin parametrizar
 │      .ts)   │
 └─────────────┘
@@ -263,7 +263,7 @@ Usuario       Frontend           Backend              BD
 | Headers HTTP | helmet | Toda la API |
 | CORS | Orígenes explícitos | Toda la API |
 | Rate limiting | express-rate-limit | Endpoints de auth |
-| SQL injection | Drizzle ORM (parametrizado) | Toda la BD |
+| SQL injection | Prisma ORM (parametrizado) | Toda la BD |
 | Auditoria | audit-log.ts (JSON estructurado) | Eventos de seguridad |
 | Email verification | email_verification_tokens | Previene cuentas falsas |
 
@@ -333,17 +333,21 @@ Este proyecto es la versión Express del mismo sistema implementado con FastAPI 
 - Comparar los enfoques: decoradores de FastAPI vs middlewares de Express
 - Entender cómo Node.js maneja el I/O asíncrono (event loop vs async/await de Python)
 
-### 7.2 ¿Por qué Drizzle ORM y no Prisma/TypeORM?
+### 7.2 ¿Por qué Prisma ORM y no Drizzle/TypeORM?
 
-| Criterio | Drizzle | Prisma | TypeORM |
+| Criterio | Prisma | Drizzle | TypeORM |
 |---|---|---|---|
-| Type safety | ✅ Total | ✅ Buena | ⚠️ Parcial |
-| Bundle size | ✅ Ligero | ⚠️ Pesado | ⚠️ Medio |
-| SQL cercano | ✅ Sí | ❌ No | ⚠️ Parcial |
-| Migraciones | ✅ drizzle-kit | ✅ prisma migrate | ✅ Sí |
-| Aprendizaje SQL | ✅ Refuerza | ❌ Abstrae | ⚠️ Parcial |
+| Type safety | ✅ Total (tipos generados) | ✅ Total | ⚠️ Parcial |
+| Migraciones declarativas | ✅ `schema.prisma` + `prisma migrate` | ✅ drizzle-kit | ✅ Sí |
+| Herramientas (Studio, `$transaction`) | ✅ Completas | ⚠️ Más limitadas | ⚠️ Parcial |
+| Curva de aprendizaje | ✅ API declarativa, fácil de leer | ⚠️ Requiere pensar en query-builder | ⚠️ Parcial |
+| SQL crudo cuando hace falta | ✅ `$queryRaw` parametrizado | ✅ Sí | ✅ Sí |
 
-Drizzle refuerza el entendimiento de SQL — clave en un contexto educativo.
+Se migró de Drizzle a Prisma el 2026-08-14 (ver [`AUDITORIA.md`](../../AUDITORIA.md) —
+sección "Auditoría de CVEs"): la versión de Drizzle usada tenía un CVE de SQL injection sin
+parchear (GHSA-gpj5-g38j-94v9). Como beneficio pedagógico adicional, Prisma es el ORM más
+usado en el ecosistema Node.js/TypeScript — mayor transferencia de conocimiento fuera de este
+proyecto que un query-builder menos extendido.
 
 ### 7.3 ¿Por qué stateless JWT y no sesiones?
 

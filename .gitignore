@@ -28,10 +28,10 @@ out/
 *.tsbuildinfo
 
 # ------------------------------------------------------------
-# Drizzle ORM — migraciones generadas localmente
-# (se recomienda versionar drizzle/migrations/ — quitar si se desea)
+# Prisma — migraciones generadas localmente
+# (se recomienda versionar prisma/migrations/ — quitar si se desea)
 # ------------------------------------------------------------
-# drizzle/
+# prisma/migrations/
 
 # ------------------------------------------------------------
 # Testing — cobertura y cachés

@@ -23,9 +23,9 @@
 | Express.js         | 5+      | Framework web HTTP                               |
 | TypeScript         | 5.0+    | Tipado estático — obligatorio                    |
 | PostgreSQL         | 17+     | Base de datos relacional                         |
-| pg (node-postgres) | latest  | Driver PostgreSQL nativo para Node.js            |
-| Drizzle ORM        | latest  | ORM moderno y type-safe para PostgreSQL          |
-| drizzle-kit        | latest  | CLI para migraciones de Drizzle                  |
+| pg (node-postgres) | latest  | Driver PostgreSQL nativo — usado por Prisma via `@prisma/adapter-pg` |
+| Prisma ORM         | latest  | ORM type-safe con migraciones declarativas       |
+| prisma             | latest  | CLI para generate/migrate de Prisma              |
 | jsonwebtoken       | latest  | Creación y verificación de tokens JWT            |
 | bcryptjs           | latest  | Hashing seguro de contraseñas                    |
 | zod                | latest  | Validación de datos y schemas (request/response) |
@@ -255,7 +255,7 @@ Cuando una dependencia de tercer nivel (transitiva) tiene un CVE y no se puede a
 }
 ```
 
-Caso real de este proyecto: `drizzle-kit` traía `esbuild@0.18.20` y `0.19.12` (CVE GHSA-67mh-4wv8-2f99). Se resolvió con `pnpm.overrides` + upgrade de `vitest` + `vite` a versiones que usan `esbuild ≥ 0.25.0`.
+Caso real de este proyecto: `drizzle-kit` traía `esbuild@0.18.20` y `0.19.12` (CVE GHSA-67mh-4wv8-2f99). Se resolvió con `pnpm.overrides` + upgrade de `vitest` + `vite` a versiones que usan `esbuild ≥ 0.25.0`. `drizzle-kit` ya no está en el proyecto (migración a Prisma, ver `AUDITORIA.md`), pero el patrón de `esbuild` anclado por el toolchain de Vite se repitió — el override vive ahora en `be/pnpm-workspace.yaml`.
 
 #### Cómo pnpm enforce versiones exactas automáticamente
 
@@ -336,14 +336,16 @@ proyecto/                          # Raíz del monorepo
 │   ├── pnpm-lock.yaml             # Lockfile de pnpm
 │   ├── tsconfig.json              # Configuración de TypeScript
 │   ├── eslint.config.js           # Configuración de ESLint
-│   ├── drizzle.config.ts          # Configuración de Drizzle ORM
+│   ├── prisma.config.ts           # Configuración del Prisma CLI (generate/migrate)
+│   ├── prisma/
+│   │   ├── schema.prisma          # Definición de tablas (Prisma)
+│   │   └── migrations/            # Historial de migraciones SQL
 │   └── src/
 │       ├── index.ts               # Punto de entrada — arranca el servidor
 │       ├── app.ts                 # Configura Express, middlewares y rutas
 │       ├── config.ts              # Configuración centralizada (validación con zod)
 │       ├── db/
-│       │   ├── index.ts           # Conexión a PostgreSQL (pool de conexiones)
-│       │   └── schema.ts          # Definición de tablas (Drizzle schema)
+│       │   └── index.ts           # Instancia de Prisma Client (driver adapter sobre pg)
 │       ├── middlewares/
 │       │   ├── auth.middleware.ts  # Verifica JWT en requests protegidos
 │       │   ├── validate.middleware.ts # Valida body/params con zod schemas
@@ -477,7 +479,7 @@ export async function registerUser(data: RegisterInput): Promise<UserResponse> {
 | Primary Keys        | id (UUID, default gen_random_uuid())                  |
 | Foreign Keys        | `<tabla_singular>_id` (ej: user_id)                   |
 | Timestamps          | created_at, updated_at en toda tabla                  |
-| Migraciones         | Siempre vía Drizzle Kit, nunca alterar BD manualmente |
+| Migraciones         | Siempre vía Prisma (`pnpm db:migrate:dev`), nunca alterar BD manualmente |
 
 ---
 
@@ -678,11 +680,11 @@ cd fe && pnpm format        # Formatear código
 - Versionamiento: `/api/v1/...`
 - Validación de inputs con zod (nunca confiar en datos del cliente)
 - Mensajes de error genéricos en auth (no revelar si el email existe)
-- Usar parámetros preparados siempre (Drizzle ORM los gestiona automáticamente)
+- Usar parámetros preparados siempre (Prisma Client los gestiona automáticamente)
 
 ### 9.7 Base de Datos
 
-- Usar siempre Drizzle ORM (nunca raw SQL sin parametrizar)
+- Usar siempre Prisma Client (nunca raw SQL sin parametrizar)
 - Conexiones con pool configurado (`pg.Pool`)
 - Credenciales exclusivamente en variables de entorno
 
@@ -749,7 +751,7 @@ Todos los endpoints van bajo `/api/v1/`
 ```
 Cliente → POST /api/v1/auth/register { email, full_name, password }
   → Validar datos (zod)
-  → Verificar email no duplicado (Drizzle query)
+  → Verificar email no duplicado (Prisma query)
   → Hashear password (bcryptjs, rounds=12)
   → Insertar usuario en BD
   → Retornar usuario creado (sin password)
@@ -976,9 +978,9 @@ Ver guía completa: [`docs/referencia-tecnica/design-system.md`](../docs/referen
 - [ ] Inicializar proyecto Node.js/TypeScript en `be/`
 - [ ] Instalar dependencias con `pnpm`
 - [ ] Crear `src/config.ts` — validación de env vars con zod
-- [ ] Crear `src/db/index.ts` — conexión a PostgreSQL con pg.Pool
-- [ ] Crear `src/db/schema.ts` — tablas con Drizzle
-- [ ] Configurar `drizzle.config.ts`
+- [ ] Crear `src/db/index.ts` — Prisma Client con `@prisma/adapter-pg`
+- [ ] Crear `prisma/schema.prisma` — tablas con Prisma
+- [ ] Configurar `prisma.config.ts`
 - [ ] Crear `src/app.ts` — Express con middlewares (helmet, cors, rate-limit)
 - [ ] Crear `src/index.ts` — arranque del servidor
 - [ ] Crear `.env.example` y `.env`
@@ -986,8 +988,7 @@ Ver guía completa: [`docs/referencia-tecnica/design-system.md`](../docs/referen
 
 ### Fase 2 — Migraciones de Base de Datos
 
-- [ ] Ejecutar `pnpm drizzle-kit generate` — generar migración inicial
-- [ ] Ejecutar `pnpm drizzle-kit migrate` — aplicar migración
+- [ ] Ejecutar `pnpm db:migrate:dev` — generar y aplicar la migración inicial
 - [ ] ✅ Verificar: tablas `users` y `password_reset_tokens` creadas en PostgreSQL
 
 ### Fase 3 — Autenticación Backend

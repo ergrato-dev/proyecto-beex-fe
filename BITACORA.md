@@ -34,7 +34,7 @@ Lee [`docs/referencia-tecnica/architecture.md`](docs/referencia-tecnica/architec
 [`database-schema.md`](docs/referencia-tecnica/database-schema.md).
 
 - [ ] Elige **un** endpoint y escribe abajo, con tus propias palabras (10-15 líneas), el flujo
-      completo request → response (router → controller → service → Drizzle/DB → respuesta).
+      completo request → response (router → controller → service → Prisma/DB → respuesta).
 
 ```
 (tu respuesta aquí)
@@ -46,7 +46,7 @@ Lee [`docs/referencia-tecnica/architecture.md`](docs/referencia-tecnica/architec
 
 Sigue el login desde `fe/src/pages/LoginPage.tsx` → `fe/src/api/auth.ts` →
 `be/src/modules/auth/auth.router.ts` → `auth.controller.ts` → `auth.service.ts` →
-`utils/security.ts` → Drizzle → DB.
+`utils/security.ts` → Prisma → DB.
 
 - [ ] ¿Dónde se genera el JWT (`jsonwebtoken`)? ¿Dónde se valida en requests posteriores
       (`middlewares/auth.middleware.ts`)?
@@ -68,7 +68,7 @@ Sigue el login desde `fe/src/pages/LoginPage.tsx` → `fe/src/api/auth.ts` →
 Elige **una** tarea que toque backend + DB + frontend a la vez, referenciando el RF que aplica
 en [`docs/requisitos/RFs/`](docs/requisitos/RFs/). Ejemplos:
 
-- Agregar un campo nuevo al schema de usuario (Drizzle schema + migración + exponerlo en el
+- Agregar un campo nuevo al schema de usuario (`schema.prisma` + migración + exponerlo en el
   frontend).
 - Cambiar y justificar la expiración del access/refresh token.
 - Agregar una regla de validación nueva con `zod` en el registro.

@@ -7,7 +7,7 @@ Este proyecto implementa una variante de MVC adaptada para APIs REST con Express
 ```
 MVC Clásico          →    Express Adaptation
 ─────────────────────────────────────────────
-Model                →    DB Schema (Drizzle) + Service
+Model                →    DB Schema (Prisma) + Service
 View                 →    JSON Response (no hay "vista" HTML)
 Controller           →    Controller + Router
 ```
@@ -29,7 +29,7 @@ HTTP Request
     │               Orquesta llamadas a la BD, utils, email
     │               Lanza errores tipados ante condiciones inválidas
     ▼
-[DB / Drizzle]   → Consultas type-safe a PostgreSQL
+[DB / Prisma]    → Consultas type-safe a PostgreSQL
                     Retorna tipos inferidos del schema
 ```
 
@@ -90,14 +90,14 @@ export function validate(schema: ZodSchema) {
 
 ---
 
-## 3. Patrón Repository (implícito en Drizzle)
+## 3. Patrón Repository (implícito en Prisma)
 
-Aunque no se implementa explícitamente una capa Repository, Drizzle ORM actúa como tal: abstrae el acceso a la BD con una API type-safe que evita SQL crudo disperso por el código.
+Aunque no se implementa explícitamente una capa Repository, Prisma Client actúa como tal: abstrae el acceso a la BD con una API type-safe que evita SQL crudo disperso por el código.
 
 ```typescript
-// Acceso centralizado a la BD a través de Drizzle
-const user = await db.query.users.findFirst({
-  where: eq(users.email, email),
+// Acceso centralizado a la BD a través de Prisma
+const user = await db.user.findUnique({
+  where: { email },
 });
 
 // vs SQL crudo disperso (anti-pattern)
@@ -203,8 +203,8 @@ export function toUserResponse(user: User): UserResponse {
 | Validación | Pydantic (decoradores) | zod + middleware validate |
 | Routing | Decoradores `@router.post` | `router.post()` explícito |
 | Inyección de dependencias | `Depends()` de FastAPI | Argumentos de función / middleware |
-| ORM | SQLAlchemy 2.0 | Drizzle ORM |
-| Migraciones | Alembic | drizzle-kit |
+| ORM | SQLAlchemy 2.0 | Prisma ORM |
+| Migraciones | Alembic | Prisma Migrate |
 | Async | `async def` nativo | `async/await` nativo |
 | Documentación API | Swagger UI automático `/docs` | Manual (este archivo) |
 | Testing | pytest + httpx | vitest + supertest |

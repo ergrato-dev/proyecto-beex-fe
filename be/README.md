@@ -8,7 +8,7 @@
     que se ejecuta pero no se comprende.
 -->
 
-> **Tecnologías:** Node.js 20 · Express.js 5 · TypeScript 5 · Drizzle ORM · PostgreSQL 17
+> **Tecnologías:** Node.js 20 · Express.js 5 · TypeScript 5 · Prisma ORM · PostgreSQL 17
 
 ---
 
@@ -20,8 +20,8 @@
 4. [Variables de entorno](#4-variables-de-entorno)
 5. [Configuración — `config.ts`](#5-configuración--configts)
 6. [Base de datos — `db/index.ts`](#6-base-de-datos--dbindexts)
-7. [Schema Drizzle — `db/schema.ts`](#7-schema-drizzle--dbschemats)
-8. [Migraciones con Drizzle-Kit](#8-migraciones-con-drizzle-kit)
+7. [Schema Prisma — `prisma/schema.prisma`](#7-schema-prisma--prismaschemaprisma)
+8. [Migraciones con Prisma](#8-migraciones-con-prisma)
 9. [Middleware de autenticación](#9-middleware-de-autenticación)
 10. [Middleware de validación](#10-middleware-de-validación)
 11. [Middleware de errores](#11-middleware-de-errores)
@@ -51,7 +51,12 @@
 
 ```
 be/
-├── drizzle.config.ts          # Configuración de Drizzle-Kit (migraciones)
+├── prisma.config.ts           # Configuración del Prisma CLI (generate/migrate)
+├── prisma/
+│   ├── schema.prisma          # Definición de tablas (fuente de verdad)
+│   └── migrations/            # Historial de migraciones SQL generadas por Prisma
+├── Dockerfile                 # Build multi-stage — imagen de producción
+├── docker-entrypoint.sh       # Aplica migraciones y arranca el servidor
 ├── package.json               # Dependencias y scripts (pnpm, versiones exactas)
 ├── tsconfig.json              # Configuración TypeScript
 ├── .env.example               # Plantilla de variables de entorno
@@ -61,8 +66,7 @@ be/
     ├── app.ts                 # Instancia Express + middlewares + rutas
     ├── config.ts              # Validación de .env con zod (fail-fast)
     ├── db/
-    │   ├── index.ts           # Pool de conexiones pg + instancia Drizzle
-    │   └── schema.ts          # Definición de tablas (fuente de verdad)
+    │   └── index.ts           # Instancia de Prisma Client (driver adapter sobre pg)
     ├── middlewares/
     │   ├── auth.middleware.ts    # Extrae y verifica JWT del header
     │   ├── validate.middleware.ts # Valida req.body con zod schemas
@@ -187,27 +191,21 @@ request (tiempo indeterminado).
 **Archivo:** `src/db/index.ts`
 
 ```typescript
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from './schema.js';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
 import { config } from '../config.js';
 
-const pool = new Pool({
-  connectionString: config.DATABASE_URL,
-  max: 10,                    // máximo 10 conexiones simultáneas
-  idleTimeoutMillis: 30_000,  // cerrar conexiones inactivas tras 30 seg
-  connectionTimeoutMillis: 2_000, // error si no conecta en 2 seg
-});
+const adapter = new PrismaPg({ connectionString: config.DATABASE_URL });
 
-export const db = drizzle(pool, { schema });
+export const db = new PrismaClient({ adapter });
 ```
 
-**¿Qué es un Pool de conexiones?**
+**¿Por qué un driver adapter (`@prisma/adapter-pg`)?**
 
-Abrir una conexión TCP a PostgreSQL cuesta entre 10-100ms. Si cada request abriera
-y cerrara su propia conexión, la aplicación sería muy lenta. Un **pool** mantiene un
-conjunto de conexiones abiertas y las reutiliza. Con `max: 10`, hasta 10 requests
-pueden ejecutar queries simultáneamente; el resto espera en cola.
+Desde Prisma 7, el cliente ya no arranca su motor de conexión automáticamente a partir
+de la URL del schema — hay que pasarle explícitamente un *driver adapter*. `PrismaPg`
+usa `pg` (node-postgres) por debajo y gestiona internamente su propio pool de
+conexiones — no hace falta crear un `Pool` manualmente como con Drizzle.
 
 **¿Por qué exportar `db`?**
 
@@ -216,75 +214,93 @@ en otros archivos — un único punto de acceso a la BD.
 
 ---
 
-## 7. Schema Drizzle — `db/schema.ts`
+## 7. Schema Prisma — `prisma/schema.prisma`
 
-**Archivo:** `src/db/schema.ts`
+**Archivo:** `prisma/schema.prisma`
 
-Drizzle ORM tiene una filosofía diferente a ORMs tradicionales como Sequelize:
-**el schema TypeScript ES la fuente de verdad**, no los modelos de una BD existente.
+Prisma tiene una filosofía similar a Drizzle: **el schema declarativo ES la fuente de
+verdad**. La diferencia es el lenguaje — no es TypeScript, es el DSL propio de Prisma
+(`.prisma`), a partir del cual `prisma generate` produce el cliente TypeScript tipado.
 
-```typescript
-export const users = pgTable('users', {
-  id:             uuid('id').primaryKey().defaultRandom(),
-  email:          varchar('email', { length: 255 }).notNull().unique(),
-  fullName:       varchar('full_name', { length: 255 }).notNull(),
-  hashedPassword: varchar('hashed_password', { length: 255 }).notNull(),
-  isActive:       boolean('is_active').notNull().default(true),
-  createdAt:      timestamp('created_at').notNull().defaultNow(),
-  updatedAt:      timestamp('updated_at').notNull().defaultNow(),
-});
+```prisma
+model User {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique @db.VarChar(255)
+  fullName       String   @map("full_name") @db.VarChar(255)
+  hashedPassword String   @map("hashed_password") @db.VarChar(255)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
 
-export const passwordResetTokens = pgTable('password_reset_tokens', {
-  id:        uuid('id').primaryKey().defaultRandom(),
-  userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token:     varchar('token', { length: 255 }).notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  used:      boolean('used').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
 ```
 
-**Tipos inferidos automáticamente:**
+**Tipos generados automáticamente:**
 
 ```typescript
-export type User = typeof users.$inferSelect;     // leer de BD
-export type NewUser = typeof users.$inferInsert;  // insertar en BD
+import type { User } from '@prisma/client';
 ```
 
-Con `$inferSelect`, Drizzle genera automáticamente el tipo TypeScript para las filas
-devueltas por SELECT. Nunca hay que escribir `interface User { id: string; ... }`
-manualmente — los tipos viven en el schema y están siempre sincronizados.
+Al correr `pnpm db:generate`, Prisma lee `schema.prisma` y genera el cliente TypeScript
+con todos los tipos (`User`, `PasswordResetToken`, etc.) ya tipados. Nunca hay que
+escribir `interface User { id: string; ... }` manualmente — los tipos viven en el schema
+y están siempre sincronizados.
+
+**¿Por qué `@map`/`@@map`?**
+
+Los nombres de campo/modelo en Prisma van en camelCase/PascalCase (convención
+TypeScript: `fullName`, `User`), pero las columnas/tablas reales en PostgreSQL siguen
+en snake_case (`full_name`, `users`). `@map`/`@@map` traducen entre ambos mundos sin
+tener que elegir una sola convención para todo el stack.
 
 ---
 
-## 8. Migraciones con Drizzle-Kit
+## 8. Migraciones con Prisma
 
 Las migraciones son archivos SQL que registran cómo evoluciona la BD.
 **Nunca modificar la BD directamente** — siempre via migraciones.
 
 ```bash
-# Generar archivos de migración desde el schema TypeScript
-pnpm drizzle-kit generate
-# → Crea archivos SQL en drizzle/ con los cambios detectados
+# Desarrollo: crear + aplicar una migración a partir de un cambio en schema.prisma
+pnpm db:migrate:dev
+# → Compara schema.prisma con la BD, genera el SQL diff en prisma/migrations/ y lo aplica
 
-# Aplicar las migraciones a la base de datos
-pnpm drizzle-kit migrate
-# → Ejecuta los SQL contra PostgreSQL
+# CI / producción: aplicar migraciones ya existentes sin crear una nueva
+pnpm db:migrate
 
-# Abrir Drizzle Studio (explorador visual de la BD)
+# Regenerar el cliente de Prisma (tipos TypeScript) sin tocar la BD
+pnpm db:generate
+
+# Abrir Prisma Studio (explorador visual de la BD)
 pnpm db:studio
-# → Abre en http://local.drizzle.studio
+# → Abre en http://localhost:5555
 ```
 
 **Flujo de trabajo para cambiar el schema:**
 
-1. Modificar `src/db/schema.ts`
-2. `pnpm drizzle-kit generate` → Drizzle genera el SQL diff
-3. Revisar el SQL generado en `drizzle/`
-4. `pnpm drizzle-kit migrate` → Aplica el cambio
+1. Modificar `prisma/schema.prisma`
+2. `pnpm db:migrate:dev` → Prisma genera el SQL diff y lo aplica en un solo paso
+3. Revisar el SQL generado en `prisma/migrations/<timestamp>_<nombre>/migration.sql`
+4. Commitear la carpeta de migración junto con el cambio de schema
 
-> 🧠 **Importante:** La carpeta `drizzle/` (con los archivos de migración generados)
-> **sí debe versionarse** en git. Estos archivos son el historial de la BD.
+> 🧠 **Importante:** La carpeta `prisma/migrations/` (con los archivos de migración
+> generados) **sí debe versionarse** en git. Estos archivos son el historial de la BD.
 
 ---
 
@@ -440,7 +456,7 @@ al service. No contiene lógica de negocio.
 ```typescript
 export async function loginUser(email: string, password: string): Promise<TokenResponse> {
   // 1. Buscar usuario
-  const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+  const user = await db.user.findUnique({ where: { email } });
   
   // 2. Verificar contraseña (mensaje genérico — no revelar si el email existe)
   if (!user || !(await verifyPassword(password, user.hashedPassword))) {
@@ -499,7 +515,7 @@ export async function getMeController(req: Request, res: Response): Promise<void
 
 // users.service.ts
 export async function getUserById(userId: string): Promise<UserResponse> {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+  const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) throw new NotFoundError('User not found');
   const { hashedPassword: _, ...rest } = user; // nunca exponer el hash
   return rest;
@@ -697,11 +713,11 @@ pnpm test
 # Ejecutar tests con cobertura
 pnpm test:coverage
 
-# Generar archivos de migración Drizzle (detecta cambios en schema.ts)
-pnpm drizzle-kit generate
+# Crear + aplicar una migración Prisma (detecta cambios en schema.prisma)
+pnpm db:migrate:dev
 
-# Aplicar migraciones pendientes a la BD
-pnpm drizzle-kit migrate
+# Aplicar migraciones existentes a la BD sin crear una nueva (CI/prod)
+pnpm db:migrate
 
 # Explorador visual de la BD en el navegador
 pnpm db:studio
@@ -724,7 +740,8 @@ pnpm format
 | --------------------- | --------------------------------------------------------------------------------------- |
 | **ORM**               | _Object-Relational Mapping_ — mapea tablas SQL a objetos TypeScript                    |
 | **Migración**         | Archivo SQL que describe cómo cambiar la estructura de la BD de una versión a otra      |
-| **Drizzle-Kit**       | CLI de Drizzle para comparar el schema TypeScript con la BD y generar SQL de migración  |
+| **Prisma Migrate**    | CLI de Prisma para comparar `schema.prisma` con la BD y generar/aplicar SQL de migración |
+| **Driver adapter**    | Capa que conecta Prisma Client a un driver de BD concreto (ej: `@prisma/adapter-pg`) — Prisma 7 ya no incluye un motor de conexión por defecto |
 | **JWT**               | _JSON Web Token_ — string firmado que contiene claims (userId, email, expiry)           |
 | **Access Token**      | JWT de corta duración (15min) para autenticar requests protegidos                       |
 | **Refresh Token**     | JWT de larga duración (7d) para obtener nuevos access tokens sin re-login               |

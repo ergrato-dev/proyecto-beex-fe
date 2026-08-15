@@ -52,7 +52,7 @@ base de datos) y no solo la apariencia.
 | **Express.js**       | 5.2.1    | Framework web HTTP                     |
 | **TypeScript**       | 5.9.3    | Tipado estático — obligatorio          |
 | **PostgreSQL**       | 17+      | Base de datos relacional               |
-| **Drizzle ORM**      | 0.40.1   | ORM moderno y type-safe para PostgreSQL|
+| **Prisma ORM**       | 7.9.1    | ORM type-safe con migraciones declarativas |
 | **jsonwebtoken**     | 9.0.3    | Creación y verificación de tokens JWT  |
 | **bcryptjs**         | 2.4.3    | Hashing seguro de contraseñas          |
 | **zod**              | 3.25.76  | Validación de schemas y request body   |
@@ -131,12 +131,16 @@ cd proyecto-beex-fe
 
 ```bash
 # Inicia PostgreSQL 17 + Mailpit en contenedores Docker
-docker compose up -d
+docker compose up -d db mailpit
 
 # Verificar que están corriendo
 docker compose ps
 # Deberías ver nn_auth_db (healthy) y nn_auth_mailpit (running)
 ```
+
+> 🐳 **¿Preferís levantar todo en Docker** (`be` y `fe` incluidos, sin instalar Node.js en tu
+> máquina)? Corré `./scripts/start.sh` en vez de seguir los pasos 3 y 4 manualmente — ver
+> [`docs/setup/con-docker.md`](docs/setup/con-docker.md).
 
 ### 3. Configurar el Backend
 
@@ -167,14 +171,17 @@ MAIL_FROM=noreply@nn-company.com
 FRONTEND_URL=http://localhost:5173
 ```
 
-Ejecutar las migraciones de la base de datos:
+Generar el cliente de Prisma y aplicar las migraciones a la base de datos:
 
 ```bash
-# Generar migraciones desde el schema Drizzle
-pnpm drizzle-kit generate
+# Generar el cliente de Prisma (tipos TypeScript desde prisma/schema.prisma)
+pnpm db:generate
 
-# Aplicar migraciones a la BD
-pnpm drizzle-kit migrate
+# Aplicar las migraciones existentes a la BD
+pnpm db:migrate
+
+# Al modificar prisma/schema.prisma, generar + aplicar una migración nueva:
+pnpm db:migrate:dev
 ```
 
 ### 4. Configurar el Frontend
@@ -282,7 +289,10 @@ proyecto-beex-fe/
 │   └── prompts/                  # Prompts reutilizables
 ├── .coderabbit.yaml              # Configuración de CodeRabbit (PR reviews)
 ├── .gitignore                    # Archivos ignorados por git
-├── docker-compose.yml            # PostgreSQL 17 + Mailpit
+├── docker-compose.yml            # PostgreSQL 17 + Mailpit + be + fe (stack completo)
+├── scripts/
+│   ├── start.sh                  # Levanta todo el stack con Docker y espera healthchecks
+│   └── stop.sh                   # Detiene el stack
 ├── README.md                     # ← Este archivo
 │
 ├── docs/                        # Documentación técnica
@@ -302,16 +312,20 @@ proyecto-beex-fe/
 │
 ├── be/                           # Backend — Express.js + TypeScript
 │   ├── .env.example              # Plantilla de variables de entorno
+│   ├── Dockerfile                # Build multi-stage — imagen de producción
+│   ├── docker-entrypoint.sh      # Aplica migraciones y arranca el servidor
 │   ├── package.json              # Dependencias (pnpm, versiones exactas)
 │   ├── tsconfig.json             # Configuración TypeScript
-│   ├── drizzle.config.ts         # Configuración de Drizzle ORM
+│   ├── prisma.config.ts          # Configuración del Prisma CLI (generate/migrate)
+│   ├── prisma/
+│   │   ├── schema.prisma         # Definición de tablas (Prisma)
+│   │   └── migrations/           # Historial de migraciones SQL generadas por Prisma
 │   └── src/
 │       ├── index.ts              # Punto de entrada — arranca el servidor
 │       ├── app.ts                # Configura Express, middlewares y rutas
 │       ├── config.ts             # Configuración con validación zod
 │       ├── db/
-│       │   ├── index.ts          # Pool de conexiones PostgreSQL
-│       │   └── schema.ts         # Definición de tablas (Drizzle)
+│       │   └── index.ts          # Instancia de Prisma Client (driver adapter sobre pg)
 │       ├── middlewares/
 │       │   ├── auth.middleware.ts    # Verificación de JWT
 │       │   ├── validate.middleware.ts # Validación con zod
@@ -329,6 +343,8 @@ proyecto-beex-fe/
 │
 └── fe/                           # Frontend — React + Vite + TypeScript
     ├── .env.example              # Plantilla de variables de entorno
+    ├── Dockerfile                # Build multi-stage — sirve el build con nginx
+    ├── nginx.conf                # Config de nginx (SPA fallback, cache, gzip)
     ├── package.json              # Dependencias (pnpm, versiones exactas)
     ├── vite.config.ts            # Vite + plugins + Vitest
     ├── tsconfig.app.json         # TypeScript strict para la app
@@ -365,7 +381,7 @@ proyecto-beex-fe/
 | Gestor de paquetes     | `pnpm` exclusivamente — `npm` y `yarn` prohibidos              |
 | Versiones              | Exactas en `package.json` — sin `^` ni `~`                     |
 | Testing                | Código generado = código probado                               |
-| Auditoría de paquetes  | Verificar CVEs en `security.snyk.io` antes de instalar         |
+| Auditoría de paquetes  | Verificar CVEs en `security.snyk.io` antes de instalar (nuevo paquete) o `pnpm audit` (árbol completo, ver [`AUDITORIA.md`](AUDITORIA.md)) |
 
 Para las reglas completas, ver [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
@@ -377,7 +393,7 @@ Para las reglas completas, ver [`.github/copilot-instructions.md`](.github/copil
 | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
 | [`BITACORA.md`](BITACORA.md)                                                                    | Checklist obligatorio de aprendizaje, fase por fase        |
 | [`AUDITORIA.md`](AUDITORIA.md)                                                                  | Auditoría de pertinencia/relevancia/completitud/actualidad/seguridad |
-| [`docs/setup/con-docker.md`](docs/setup/con-docker.md)                                         | Setup recomendado: Docker para infraestructura + Node.js nativo |
+| [`docs/setup/con-docker.md`](docs/setup/con-docker.md)                                         | Setup con Docker — stack completo (`./scripts/start.sh`) o solo infraestructura |
 | [`docs/setup/sin-docker.md`](docs/setup/sin-docker.md)                                         | Setup alternativo: PostgreSQL y Node.js 100% nativos      |
 | [`docs/referencia-tecnica/architecture.md`](docs/referencia-tecnica/architecture.md)           | Arquitectura general, flujos y decisiones técnicas        |
 | [`docs/referencia-tecnica/api-endpoints.md`](docs/referencia-tecnica/api-endpoints.md)         | Todos los endpoints con parámetros, respuestas y errores  |

@@ -1,3 +1,8 @@
+# ¿Qué? Orquesta el stack completo — db, mailpit, backend y frontend.
+# ¿Para qué? `docker compose up` levanta todo el proyecto de punta a punta, sin instalar
+#   Node.js ni pnpm en el host.
+# ¿Impacto? Las credenciales de `db` están hardcodeadas en texto plano — correcto para
+#   desarrollo local, NUNCA copiar estos valores a un entorno de producción real.
 services:
   db:
     image: postgres:17-alpine
@@ -15,6 +20,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - nn_auth_network
 
   mailpit:
     image: axllent/mailpit:latest
@@ -23,6 +30,45 @@ services:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Web UI — http://localhost:8025
     restart: unless-stopped
+    networks:
+      - nn_auth_network
+
+  be:
+    build:
+      context: ./be
+    container_name: nn_auth_be
+    env_file:
+      - ./be/.env
+    environment:
+      # ¿Qué? Sobrescribe los valores de be/.env pensados para ejecución nativa (localhost).
+      # ¿Para qué? Dentro de la red de Docker, los servicios se resuelven por nombre.
+      DATABASE_URL: postgresql://nn_user:nn_password@db:5432/nn_auth_db
+      MAIL_HOST: mailpit
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nn_auth_network
+
+  fe:
+    build:
+      context: ./fe
+      args:
+        VITE_API_BASE_URL: http://localhost:3000/api/v1
+    container_name: nn_auth_fe
+    ports:
+      - "5173:80"
+    depends_on:
+      - be
+    networks:
+      - nn_auth_network
+
+networks:
+  nn_auth_network:
+    driver: bridge
 
 volumes:
   nn_auth_data:

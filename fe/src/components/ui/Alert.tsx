@@ -7,11 +7,13 @@
  *   automáticamente cuando aparece.
  */
 
+import type { ReactNode } from 'react';
+
 interface AlertProps {
   // ¿Qué? Tipo de alerta — determina el color y el icono.
   type: 'error' | 'success' | 'info';
-  // ¿Qué? El mensaje a mostrar al usuario.
-  message: string;
+  // ¿Qué? El mensaje a mostrar al usuario — texto simple o JSX (ej: con partes en negrita).
+  message: ReactNode;
 }
 
 // ¿Qué? Mapa de clases Tailwind por tipo de alerta.

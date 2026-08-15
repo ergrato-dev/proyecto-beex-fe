@@ -12,6 +12,24 @@
 > **Modo recomendado para:** desarrollo activo con hot-reload, depuración con IDE,
 > demostraciones y entornos de clase.
 
+## Opción rápida — todo en Docker (sin instalar Node.js)
+
+Si solo querés levantar el sistema completo para probarlo (sin hot-reload ni editar código),
+`docker-compose.yml` también construye `be` y `fe` como contenedores:
+
+```bash
+./scripts/start.sh
+# o manualmente:
+docker compose up --build -d
+```
+
+Esto expone lo mismo que el flujo nativo de abajo: frontend en `http://localhost:5173`,
+API en `http://localhost:3000`, Mailpit en `http://localhost:8025`. Para detener todo:
+`./scripts/stop.sh` (o `docker compose down`).
+
+El resto de esta guía describe el flujo **recomendado para desarrollo**: Docker solo para
+infraestructura, `be`/`fe` corriendo nativos con `pnpm dev` (hot-reload inmediato).
+
 En este stack, Docker solo gestiona la infraestructura:
 
 | Servicio   | Dónde corre             | URL / Puerto          |
@@ -72,8 +90,8 @@ ls
 ## Paso 2 — Levantar la infraestructura con Docker
 
 ```bash
-# Inicia PostgreSQL y Mailpit en segundo plano
-docker compose up -d
+# Inicia PostgreSQL y Mailpit en segundo plano (sin construir be/fe)
+docker compose up -d db mailpit
 ```
 
 Verificar que los contenedores están sanos:
@@ -134,17 +152,19 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 # Repetir para JWT_REFRESH_SECRET= (usar un valor diferente)
 ```
 
-### 3.3 Ejecutar las migraciones de base de datos
+### 3.3 Generar el cliente de Prisma y ejecutar las migraciones
 
 ```bash
 # Desde be/ — con Docker corriendo
+pnpm db:generate
 pnpm db:migrate
 ```
 
 Deberías ver algo como:
 
 ```
-[✓] migrations/0000_initial_schema.sql
+Applying migration `20260815000000_init`
+All migrations have been successfully applied.
 ```
 
 Verificar que las tablas se crearon:
@@ -242,7 +262,7 @@ Después del registro, ir a http://localhost:8025 para ver el email de verificac
 
 ```bash
 # ─── Docker — infraestructura ───
-docker compose up -d             # levantar PostgreSQL + Mailpit
+docker compose up -d db mailpit  # levantar PostgreSQL + Mailpit
 docker compose stop              # detener sin perder datos
 docker compose start             # volver a iniciar
 docker compose down              # detener y eliminar contenedores (datos en volumen persisten)
@@ -265,10 +285,11 @@ pnpm lint            # verificar errores de ESLint
 pnpm format          # formatear con Prettier
 pnpm build           # compilar TypeScript → dist/
 
-# ─── Drizzle ORM ───
-pnpm db:generate     # generar nuevas migraciones desde el schema
-pnpm db:migrate      # aplicar migraciones pendientes
-pnpm db:studio       # abrir Drizzle Studio (GUI para la BD)
+# ─── Prisma ORM ───
+pnpm db:generate     # regenerar el cliente de Prisma desde el schema
+pnpm db:migrate:dev  # crear + aplicar una migración nueva (desarrollo)
+pnpm db:migrate      # aplicar migraciones existentes sin crear una nueva (CI/prod)
+pnpm db:studio       # abrir Prisma Studio (GUI para la BD)
 pnpm db:status       # ver estado de las migraciones
 
 # ─── Frontend ───
@@ -327,7 +348,7 @@ PostgreSQL no está corriendo o no está listo todavía.
 docker compose ps
 
 # Si nn_auth_db no aparece, levantarlo:
-docker compose up -d
+docker compose up -d db mailpit
 
 # Esperar al healthcheck
 docker compose ps   # STATUS debe ser "Up (healthy)"
@@ -379,7 +400,7 @@ cd be && pnpm db:status
 
 # Si la BD tiene tablas de una sesión anterior y quieres reiniciar desde cero:
 docker compose down -v   # ⚠️ borra TODOS los datos
-docker compose up -d
+docker compose up -d db mailpit
 pnpm db:migrate
 ```
 
@@ -387,7 +408,7 @@ pnpm db:migrate
 
 ```bash
 docker compose down -v
-docker compose up -d
+docker compose up -d db mailpit
 cd be && pnpm db:migrate
 ```
 
@@ -398,7 +419,7 @@ cd be && pnpm db:migrate
 ```bash
 # Setup inicial (una sola vez)
 git clone <url> && cd proyecto-beex-fe
-docker compose up -d
+docker compose up -d db mailpit
 cd be && pnpm install && cp .env.example .env && pnpm db:migrate
 cd ../fe && pnpm install && cp .env.example .env
 

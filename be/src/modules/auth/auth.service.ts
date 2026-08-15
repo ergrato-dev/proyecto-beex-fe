@@ -7,9 +7,8 @@
  */
 
 import crypto from 'node:crypto';
-import { eq, and, gt } from 'drizzle-orm';
+import type { User } from '@prisma/client';
 import { db } from '../../db/index.js';
-import { users, passwordResetTokens, emailVerificationTokens } from '../../db/schema.js';
 import {
   hashPassword,
   verifyPassword,
@@ -64,7 +63,7 @@ export interface TokenResponse {
 }
 
 // ¿Qué? Mapea un usuario de BD al DTO de respuesta, omitiendo la contraseña.
-function toUserResponse(user: typeof users.$inferSelect): UserResponse {
+function toUserResponse(user: User): UserResponse {
   return {
     id: user.id,
     email: user.email,
@@ -83,8 +82,8 @@ function toUserResponse(user: typeof users.$inferSelect): UserResponse {
 //   generarían conflictos de datos. Sin verificación de email, cualquiera podría
 //   registrarse con el email de otra persona.
 export async function registerUser(data: RegisterInput): Promise<UserResponse> {
-  const existing = await db.query.users.findFirst({
-    where: eq(users.email, data.email),
+  const existing = await db.user.findUnique({
+    where: { email: data.email },
   });
 
   if (existing) {
@@ -94,14 +93,13 @@ export async function registerUser(data: RegisterInput): Promise<UserResponse> {
 
   const hashed = await hashPassword(data.password);
 
-  const [user] = await db
-    .insert(users)
-    .values({
+  const user = await db.user.create({
+    data: {
       email: data.email,
       fullName: data.fullName,
       hashedPassword: hashed,
-    })
-    .returning();
+    },
+  });
 
   // ¿Qué? Token criptográficamente seguro de 32 bytes (64 chars hex) para verificación de email.
   // ¿Para qué? Garantizar que solo quien tiene acceso al email puede activar la cuenta.
@@ -109,10 +107,12 @@ export async function registerUser(data: RegisterInput): Promise<UserResponse> {
   const verificationToken = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  await db.insert(emailVerificationTokens).values({
-    userId: user.id,
-    token: verificationToken,
-    expiresAt,
+  await db.emailVerificationToken.create({
+    data: {
+      userId: user.id,
+      token: verificationToken,
+      expiresAt,
+    },
   });
 
   await sendVerificationEmail(user.email, verificationToken);
@@ -124,8 +124,8 @@ export async function registerUser(data: RegisterInput): Promise<UserResponse> {
 // ¿Para qué? Punto de entrada al sistema — retorna tokens para sesiones autenticadas.
 // ¿Impacto? Un error en la comparación de hash permitiría logins incorrectos.
 export async function loginUser(data: LoginInput, ip?: string): Promise<TokenResponse> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, data.email),
+  const user = await db.user.findUnique({
+    where: { email: data.email },
   });
 
   // ¿Qué? Mensaje de error idéntico tanto para email inexistente como contraseña incorrecta.
@@ -171,8 +171,8 @@ export async function refreshTokens(data: RefreshTokenInput): Promise<TokenRespo
     throw new UnauthorizedError('Refresh token inválido o expirado.');
   }
 
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, payload.sub),
+  const user = await db.user.findUnique({
+    where: { id: payload.sub },
   });
 
   if (!user || !user.isActive) {
@@ -193,8 +193,8 @@ export async function changeUserPassword(
   userId: string,
   data: ChangePasswordInput,
 ): Promise<void> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const user = await db.user.findUnique({
+    where: { id: userId },
   });
 
   if (!user) throw new NotFoundError('Usuario no encontrado.');
@@ -204,10 +204,10 @@ export async function changeUserPassword(
 
   const hashed = await hashPassword(data.newPassword);
 
-  await db
-    .update(users)
-    .set({ hashedPassword: hashed, updatedAt: new Date() })
-    .where(eq(users.id, userId));
+  await db.user.update({
+    where: { id: userId },
+    data: { hashedPassword: hashed, updatedAt: new Date() },
+  });
 
   logPasswordChanged(userId);
 }
@@ -216,8 +216,8 @@ export async function changeUserPassword(
 // ¿Para qué? Iniciar el flujo de reset de contraseña de forma segura.
 // ¿Impacto? El response siempre es genérico — no revelar si el email existe (OWASP A07).
 export async function requestPasswordReset(data: ForgotPasswordInput): Promise<void> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, data.email),
+  const user = await db.user.findUnique({
+    where: { email: data.email },
   });
 
   // ¿Qué? Respuesta silenciosa si el email no existe.
@@ -230,10 +230,12 @@ export async function requestPasswordReset(data: ForgotPasswordInput): Promise<v
   // ¿Qué? Expira en 1 hora.
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-  await db.insert(passwordResetTokens).values({
-    userId: user.id,
-    token: resetToken,
-    expiresAt,
+  await db.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token: resetToken,
+      expiresAt,
+    },
   });
 
   await sendPasswordResetEmail(user.email, resetToken);
@@ -244,13 +246,12 @@ export async function requestPasswordReset(data: ForgotPasswordInput): Promise<v
 // ¿Para qué? Completar el flujo de recuperación con verificación segura del token.
 // ¿Impacto? El token debe ser único, no expirado y no usado — cualquier fallo es 400.
 export async function resetUserPassword(data: ResetPasswordInput): Promise<void> {
-  const tokenRecord = await db.query.passwordResetTokens.findFirst({
-    where: and(
-      eq(passwordResetTokens.token, data.token),
-      eq(passwordResetTokens.used, false),
-      gt(passwordResetTokens.expiresAt, new Date()),
-    ),
-    with: { user: true },
+  const tokenRecord = await db.passwordResetToken.findFirst({
+    where: {
+      token: data.token,
+      used: false,
+      expiresAt: { gt: new Date() },
+    },
   });
 
   if (!tokenRecord) {
@@ -259,16 +260,20 @@ export async function resetUserPassword(data: ResetPasswordInput): Promise<void>
 
   const hashed = await hashPassword(data.newPassword);
 
-  // ¿Qué? Actualizar contraseña y marcar token como usado en una sola transacción lógica.
-  await db
-    .update(users)
-    .set({ hashedPassword: hashed, updatedAt: new Date() })
-    .where(eq(users.id, tokenRecord.userId));
-
-  await db
-    .update(passwordResetTokens)
-    .set({ used: true })
-    .where(eq(passwordResetTokens.id, tokenRecord.id));
+  // ¿Qué? Actualizar contraseña y marcar token como usado en una sola transacción real.
+  // ¿Para qué? Garantizar atomicidad — si una de las dos escrituras falla, ninguna se aplica.
+  // ¿Impacto? Antes (con Drizzle) estas eran dos escrituras secuenciales sin transacción real
+  //   pese a que el comentario original lo afirmaba — `$transaction` cierra ese gap.
+  await db.$transaction([
+    db.user.update({
+      where: { id: tokenRecord.userId },
+      data: { hashedPassword: hashed, updatedAt: new Date() },
+    }),
+    db.passwordResetToken.update({
+      where: { id: tokenRecord.id },
+      data: { used: true },
+    }),
+  ]);
 }
 
 // ¿Qué? Verifica el email del usuario usando el token enviado al momento del registro.
@@ -277,30 +282,30 @@ export async function resetUserPassword(data: ResetPasswordInput): Promise<void>
 // ¿Impacto? Sin esta verificación, el login queda bloqueado con 403 indefinidamente.
 //   El token es de un solo uso — una vez consumido, no puede reutilizarse.
 export async function verifyEmail(data: VerifyEmailInput): Promise<void> {
-  const tokenRecord = await db.query.emailVerificationTokens.findFirst({
-    where: and(
-      eq(emailVerificationTokens.token, data.token),
-      eq(emailVerificationTokens.used, false),
-      gt(emailVerificationTokens.expiresAt, new Date()),
-    ),
-    with: { user: true },
+  const tokenRecord = await db.emailVerificationToken.findFirst({
+    where: {
+      token: data.token,
+      used: false,
+      expiresAt: { gt: new Date() },
+    },
   });
 
   if (!tokenRecord) {
     throw new BadRequestError('El token de verificación es inválido o ha expirado.');
   }
 
-  // ¿Qué? Actualiza is_email_verified=true y marca el token como usado.
-  // ¿Para qué? Activar la cuenta y asegurar que el token no pueda usarse de nuevo.
-  await db
-    .update(users)
-    .set({ isEmailVerified: true, updatedAt: new Date() })
-    .where(eq(users.id, tokenRecord.userId));
-
-  await db
-    .update(emailVerificationTokens)
-    .set({ used: true })
-    .where(eq(emailVerificationTokens.id, tokenRecord.id));
+  // ¿Qué? Actualiza isEmailVerified=true y marca el token como usado, en una transacción real.
+  // ¿Para qué? Activar la cuenta y asegurar que el token no pueda usarse de nuevo de forma atómica.
+  await db.$transaction([
+    db.user.update({
+      where: { id: tokenRecord.userId },
+      data: { isEmailVerified: true, updatedAt: new Date() },
+    }),
+    db.emailVerificationToken.update({
+      where: { id: tokenRecord.id },
+      data: { used: true },
+    }),
+  ]);
 
   logEmailVerified(tokenRecord.userId);
 }
@@ -314,17 +319,16 @@ export async function updateUserLocale(
   userId: string,
   data: UpdateLocaleInput,
 ): Promise<UserResponse> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const user = await db.user.findUnique({
+    where: { id: userId },
   });
 
   if (!user) throw new NotFoundError('Usuario no encontrado.');
 
-  const [updated] = await db
-    .update(users)
-    .set({ locale: data.locale, updatedAt: new Date() })
-    .where(eq(users.id, userId))
-    .returning();
+  const updated = await db.user.update({
+    where: { id: userId },
+    data: { locale: data.locale, updatedAt: new Date() },
+  });
 
   return toUserResponse(updated);
 }

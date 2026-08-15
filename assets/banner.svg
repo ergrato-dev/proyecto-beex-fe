@@ -68,10 +68,10 @@
   <text x="580" y="205" text-anchor="middle"
     font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#60a5fa">PostgreSQL 17</text>
 
-  <!-- Drizzle ORM -->
+  <!-- Prisma ORM -->
   <rect x="642" y="189" width="88" height="24" rx="4" fill="#141b08" stroke="#3d5016" stroke-width="1"/>
   <text x="686" y="205" text-anchor="middle"
-    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#a8cc4a">Drizzle ORM</text>
+    font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#a8cc4a">Prisma ORM</text>
 
   <!-- Vitest -->
   <rect x="740" y="189" width="68" height="24" rx="4" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1"/>

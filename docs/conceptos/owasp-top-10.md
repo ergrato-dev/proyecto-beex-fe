@@ -58,14 +58,14 @@ export async function hashPassword(password: string): Promise<string> {
 
 **Implementación en este proyecto:**
 
-- **Drizzle ORM** genera consultas parametrizadas automáticamente — nunca SQL crudo con interpolación de strings
+- **Prisma ORM** genera consultas parametrizadas automáticamente — nunca SQL crudo con interpolación de strings
 - **zod** valida y sanitiza todos los inputs antes de que lleguen al service o la BD
 - No se usa `eval()` ni interpolación directa de datos del usuario
 
 ```typescript
-// ✅ Drizzle ORM — consulta parametrizada automática
-const user = await db.query.users.findFirst({
-  where: eq(users.email, email), // 'email' es parametrizado, no interpolado
+// ✅ Prisma ORM — consulta parametrizada automática
+const user = await db.user.findUnique({
+  where: { email }, // 'email' es parametrizado, no interpolado
 });
 
 // ❌ NUNCA hacer esto
@@ -234,7 +234,7 @@ console.warn(`[AUTH] Failed login attempt for email: ${email} from IP: ${ip}`);
 |---|---|---|
 | A01 | Auth middleware + JWT claims | jsonwebtoken |
 | A02 | Bcrypt hashing + JWT signing | bcryptjs, jsonwebtoken |
-| A03 | ORM parametrizado + validación | Drizzle ORM, zod |
+| A03 | ORM parametrizado + validación | Prisma ORM, zod |
 | A04 | Tokens con TTL + mensajes genéricos | Diseño del sistema |
 | A05 | Security headers + CORS estricto | helmet, cors |
 | A06 | Lockfile + auditoría periódica | pnpm audit |

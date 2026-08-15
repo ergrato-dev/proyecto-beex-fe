@@ -10,7 +10,7 @@ Crea un módulo backend completo en `be/src/modules/$arg/` siguiendo exactamente
 ## Archivos a generar
 
 1. **`$arg.schema.ts`** — Schemas Zod para validación de request/response
-2. **`$arg.service.ts`** — Lógica de negocio (acceso a BD con Drizzle, errores tipados)
+2. **`$arg.service.ts`** — Lógica de negocio (acceso a BD con Prisma, errores tipados)
 3. **`$arg.controller.ts`** — Handlers HTTP delgados que delegan al service
 4. **`$arg.router.ts`** — Router Express con middlewares `validate()` y `authenticate()`
 
@@ -21,7 +21,7 @@ Crea un módulo backend completo en `be/src/modules/$arg/` siguiendo exactamente
 - Tipos TypeScript explícitos en todos los parámetros y retornos
 - Errores lanzados con clases tipadas: `AppError`, `ConflictError`, `NotFoundError`, `UnauthorizedError`
 - Endpoints bajo `/api/v1/$arg/`
-- Drizzle ORM para toda operación de BD — nunca raw SQL
+- Prisma Client (`db` en `be/src/db/index.ts`) para toda operación de BD — nunca raw SQL
 - Exportar el router y registrarlo en `be/src/app.ts`
 
 ## Referencia de patrón existente

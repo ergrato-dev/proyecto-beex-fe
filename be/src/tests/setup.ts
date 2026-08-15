@@ -7,17 +7,16 @@
 
 import { beforeAll, afterAll, beforeEach } from 'vitest';
 import { db } from '../db/index.js';
-import { passwordResetTokens, emailVerificationTokens, users } from '../db/schema.js';
 
 // ¿Qué? Limpiar todas las tablas antes de cada test.
 // ¿Para qué? Garantizar que cada test parte de un estado limpio y predecible.
 // ¿Impacto? Sin limpiar, el orden de ejecución de tests podría causar fallas intermitentes.
-// ¿Por qué este orden? Las FKs de passwordResetTokens y emailVerificationTokens apuntan
-//   a users — deben eliminarse primero para evitar errores de integridad referencial.
+// ¿Por qué este orden? Las FKs de passwordResetToken y emailVerificationToken apuntan
+//   a user — deben eliminarse primero para evitar errores de integridad referencial.
 beforeEach(async () => {
-  await db.delete(passwordResetTokens);
-  await db.delete(emailVerificationTokens);
-  await db.delete(users);
+  await db.passwordResetToken.deleteMany();
+  await db.emailVerificationToken.deleteMany();
+  await db.user.deleteMany();
 });
 
 // ¿Qué? Verificar que la conexión a la BD de tests está disponible antes de empezar.

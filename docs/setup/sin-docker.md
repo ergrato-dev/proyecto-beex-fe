@@ -156,17 +156,19 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 # Repetir para JWT_REFRESH_SECRET= (usar un valor diferente)
 ```
 
-### 3.3 Ejecutar las migraciones de base de datos
+### 3.3 Generar el cliente de Prisma y ejecutar las migraciones
 
 ```bash
 # Desde be/
+pnpm db:generate
 pnpm db:migrate
 ```
 
 Deberías ver algo como:
 
 ```
-[✓] migrations/0000_initial_schema.sql
+Applying migration `20260815000000_init`
+All migrations have been successfully applied.
 ```
 
 Verificar que las tablas se crearon:
@@ -331,10 +333,11 @@ pnpm lint            # verificar errores de ESLint
 pnpm format          # formatear con Prettier
 pnpm build           # compilar TypeScript → dist/
 
-# ─── Drizzle ORM (desde be/) ───
-pnpm db:generate     # generar nuevas migraciones desde schema.ts
-pnpm db:migrate      # aplicar migraciones pendientes a la BD
-pnpm db:studio       # abrir Drizzle Studio (GUI para la BD) en http://localhost:4983
+# ─── Prisma ORM (desde be/) ───
+pnpm db:generate     # regenerar el cliente de Prisma desde schema.prisma
+pnpm db:migrate:dev  # crear + aplicar una migración nueva (desarrollo)
+pnpm db:migrate      # aplicar migraciones existentes sin crear una nueva (CI/prod)
+pnpm db:studio       # abrir Prisma Studio (GUI para la BD) en http://localhost:5555
 pnpm db:status       # ver estado de las migraciones aplicadas
 
 # ─── Frontend (desde fe/) ───

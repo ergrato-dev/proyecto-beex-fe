@@ -11,6 +11,11 @@
 
 Fecha de la auditoría: 2026-07-11. Repo evaluado justo después de mergear `origin/dev` a `main`.
 
+> **Actualización 2026-08-14**: se resolvieron 3 de los gaps de la sección "Completitud"
+> (Docker completo, `scripts/start.sh`/`stop.sh`, migración Drizzle→Prisma) y se agregó la
+> sección [Auditoría de CVEs](#-auditoría-de-cves) más abajo. El resto de los gaps
+> (CI, tests de `users.*`, `.pre-commit-config.yaml`) sigue fuera de alcance.
+
 ## Hallazgo previo a la auditoría — split de ramas
 
 `main` tenía solo 4 commits (scaffold de Vite sin tocar, sin README, sin `docs/`) mientras
@@ -29,9 +34,12 @@ arquitectura documentada en [`docs/referencia-tecnica/`](docs/referencia-tecnica
 
 ## Relevancia
 
-Stack vigente: Express 5, TypeScript, Drizzle ORM + PostgreSQL, React 19/Vite/TS. Buen
-contraste pedagógico con FastAPI (ORM tipo query-builder vs ORM declarativo, middleware
+Stack vigente: Express 5, TypeScript, Prisma ORM + PostgreSQL, React 19/Vite/TS. Buen
+contraste pedagógico con FastAPI (ORM declarativo con motor propio vs SQLAlchemy, middleware
 explícito vs dependency injection). ✅
+
+> Migrado de Drizzle a Prisma el 2026-08-14 — ver [Auditoría de CVEs](#-auditoría-de-cves):
+> la versión de Drizzle usada tenía un CVE de SQL injection sin parchear.
 
 ## Completitud
 
@@ -41,14 +49,14 @@ Gaps identificados — **quedan documentados, no se corrigen en esta ronda**:
 - Backend: un solo archivo de test (`be/src/tests/auth.test.ts`, ~37 casos) — cubre bien el
   flujo de auth pero no hay tests para `users.controller.ts`/`users.service.ts` (perfil, locale)
   fuera de ese archivo.
-- `docker-compose.yml` solo levanta `db` + `mailpit` — no hay Dockerfiles para `be`/`fe` ni
-  contenedor de nginx, a diferencia del repo FastAPI de referencia que sí conteneriza todo el
-  stack. Es una decisión de diseño documentada en `docs/setup/con-docker.md` (be/fe corren
-  nativos con `pnpm dev`), pero rompe la paridad "docker compose up y ya" que sí tiene el repo
-  FastAPI — vale la pena decidir si se homologa.
-- No existe `.pre-commit-config.yaml` pese a que hay lint configurado (ESLint/Prettier en fe,
-  probablemente equivalente en be — verificar).
-- No hay `scripts/start.sh`/`stop.sh` como en el repo FastAPI de referencia.
+- No existe `.pre-commit-config.yaml` pese a que hay lint configurado (ESLint/Prettier en fe;
+  en `be` falta directamente `eslint.config.js` — `pnpm lint` no corre, gap preexistente sin
+  relación con esta ronda).
+
+**Resuelto 2026-08-14**: `docker-compose.yml` ahora levanta el stack completo (`db`+`mailpit`+
+`be`+`fe`) con `be/Dockerfile`/`fe/Dockerfile`/`fe/nginx.conf`, igualando la paridad del repo
+FastAPI de referencia. Se agregaron `scripts/start.sh`/`stop.sh` con el mismo patrón de
+healthcheck-polling que el repo FastAPI.
 
 ## Actualidad
 
@@ -80,13 +88,48 @@ quedar explícito):
   `your-super-secret-...-change-in-production` — igual de correcto que el patrón del repo
   FastAPI, sin acción requerida.
 
+## 🛡️ Auditoría de CVEs
+
+Ejecutada el 2026-08-14 con `pnpm audit --json` sobre `be/` y `fe/` (versiones reales del
+lockfile en ese momento, antes de los bumps de esta misma ronda). Metodología: mismo enfoque
+que `.github/prompts/audit-package.prompt.md` (fuente de verdad = advisories del propio
+registro de pnpm) pero aplicado a **todo el árbol de dependencias instalado**, no a un paquete
+nuevo antes de instalarlo.
+
+### Hallazgos de producción (acción tomada)
+
+| Paquete | Severidad | Detalle | Acción |
+|---|---|---|---|
+| `drizzle-orm@0.40.1` | **High** (SQL injection, CWE-89) | GHSA-gpj5-g38j-94v9 — identificadores SQL mal escapados | Eliminado — migración completa a Prisma (ver sección Relevancia) |
+| `nodemailer@8.0.4` | **High** | GHSA-p6gq-j5cr-w38f — vulnerable en toda la serie `<=9.0.0` | Bump a `9.0.5` (cambio de major; se verificó que la API `createTransport`/`sendMail` usada en `be/src/utils/email.ts` no cambió) |
+| `axios@1.14.0` | Moderate (SSRF vía NO_PROXY) | GHSA-3p68-rc4w-qgx5 | Bump a `1.19.0` |
+| `react-router-dom@7.14.0` (vía `react-router`) | **High** (CSRF bypass) | GHSA-qwww-vcr4-c8h2, + varios moderados/altos en el rango `<7.18.2` | Bump a `7.18.2` |
+| `qs`, `body-parser`, `form-data` (transitivos vía `express`/`supertest`) | Moderate/Low | DoS, redirect de contenido | Resueltos con `pnpm update` dentro del rango ya declarado por `express`/`supertest` — no fue necesario `pnpm.overrides` |
+| `dompurify` (transitivo vía `jspdf`, optional) | Moderate/Low (varios) | XSS bypass, varias versiones | Resuelto con `pnpm update dompurify` (rango `^3.3.1` de `jspdf` ya lo permitía) |
+
+### Hallazgos solo en devDependencies (build tools, sin exposición en producción)
+
+| Paquete | Severidad | Acción |
+|---|---|---|
+| `vite@8.0.3` | High/Moderate (path traversal, fs bypass — solo dev server) | Bump a `8.2.1` |
+| `esbuild` (transitivo vía Vite/tsx) | Low | Quedó anclado en `0.27.x` pese a `pnpm update` — igual que el CVE histórico de `esbuild` documentado en `copilot-instructions.md` (línea ~258). Forzado a `0.28.2` vía `overrides` en `pnpm-workspace.yaml` |
+| `postcss`, `undici`, `@babel/core` (transitivos) | Moderate/Low | Resueltos con `pnpm update` dentro de los rangos ya declarados por sus paquetes padre |
+| `js-yaml`, `brace-expansion` (transitivos vía ESLint) | High/Moderate | Resueltos con `pnpm update` — no requirió tocar la versión de ESLint |
+
+### Estado final
+
+`pnpm audit` sobre `be/` y `fe/` (post-bumps, mismo commit que esta auditoría): **0 advisories**
+en ambos. Verificado con `pnpm test` (37 tests `be` + 67 tests `fe`, todos en verde) y
+`docker compose up --build` end-to-end (registro + email de verificación capturado en Mailpit)
+después de aplicar los bumps.
+
 ## Próximos pasos sugeridos (fuera de alcance de esta ronda)
 
-1. Agregar workflow de CI que corra lint + tests de `be/` y `fe/` en cada PR.
+1. Agregar workflow de CI que corra lint + tests de `be/` y `fe/` en cada PR (y, ya que se
+   ejecuta en cada PR, correr `pnpm audit` ahí mismo en vez de solo manualmente).
 2. Tests para `users.controller.ts`/`users.service.ts` (fuera del flujo de auth puro).
-3. Decidir si se homologa la contenerización completa (Dockerfiles be/fe) con el repo FastAPI o
-   se mantiene la decisión actual de correr be/fe nativos.
-4. `.pre-commit-config.yaml` reutilizando el lint ya configurado.
-5. Comunicar a cualquier aprendiz que haya clonado `main` antes del merge de `dev` que debe
+3. `.pre-commit-config.yaml` reutilizando el lint ya configurado — y agregar el
+   `eslint.config.js` faltante en `be/` para que `pnpm lint` funcione ahí.
+4. Comunicar a cualquier aprendiz que haya clonado `main` antes del merge de `dev` que debe
    re-sincronizar su fork.
-6. Una vez resueltos 1-4, replicar el mismo patrón en el resto de `proyecto-*`.
+5. Una vez resueltos 1-3, replicar el mismo patrón en el resto de `proyecto-*`.

@@ -24,6 +24,8 @@ const testUser = {
   email: 'user@test.com',
   fullName: 'Test User',
   isActive: true,
+  isEmailVerified: true,
+  locale: 'es',
   createdAt: '2026-01-01T00:00:00Z',
 };
 

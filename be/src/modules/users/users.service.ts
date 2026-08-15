@@ -5,9 +5,7 @@
  * ¿Impacto? Solo expone y modifica datos propios — nunca datos de otros usuarios.
  */
 
-import { eq } from 'drizzle-orm';
 import { db } from '../../db/index.js';
-import { users } from '../../db/schema.js';
 import { NotFoundError } from '../../middlewares/error.middleware.js';
 import type { UpdateLocaleInput } from '../auth/auth.schema.js';
 
@@ -28,8 +26,8 @@ export interface UserProfile {
 // ¿Impacto? El ID siempre viene del token JWT — nunca de un parámetro de ruta controlable
 //   por el cliente, lo que previene acceso horizontal no autorizado (IDOR).
 export async function getUserById(userId: string): Promise<UserProfile> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const user = await db.user.findUnique({
+    where: { id: userId },
   });
 
   if (!user) throw new NotFoundError('Usuario no encontrado.');
@@ -55,17 +53,16 @@ export async function updateUserLocale(
   userId: string,
   data: UpdateLocaleInput,
 ): Promise<UserProfile> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const user = await db.user.findUnique({
+    where: { id: userId },
   });
 
   if (!user) throw new NotFoundError('Usuario no encontrado.');
 
-  const [updated] = await db
-    .update(users)
-    .set({ locale: data.locale, updatedAt: new Date() })
-    .where(eq(users.id, userId))
-    .returning();
+  const updated = await db.user.update({
+    where: { id: userId },
+    data: { locale: data.locale, updatedAt: new Date() },
+  });
 
   return {
     id: updated.id,

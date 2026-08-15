@@ -20,7 +20,7 @@ El stack tecnológico está definido y **no puede modificarse** sin aprobación 
 | Framework BE    | Express.js 5 + TypeScript 5                         |
 | Framework FE    | React 18 + Vite 6 + TypeScript 5 + TailwindCSS 4   |
 | Base de datos   | PostgreSQL 17                                       |
-| ORM             | Drizzle ORM + drizzle-kit                           |
+| ORM             | Prisma ORM + Prisma Migrate                         |
 | Validación      | Zod (BE) — exclusivamente                           |
 | Auth            | JWT (jsonwebtoken) — access 15 min + refresh 7 días |
 | Hashing         | bcryptjs (salt rounds = 12)                         |

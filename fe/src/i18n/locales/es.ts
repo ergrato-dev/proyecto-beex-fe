@@ -250,4 +250,9 @@ export const es = {
   },
 } as const;
 
-export type TranslationKeys = typeof es;
+// ¿Qué? Mismo árbol de claves que `es`, pero con valores `string` en vez de los literales
+//   exactos en español (`typeof es` a secas exigiría que EN reprodujera el texto en ES).
+// ¿Para qué? Que `en.ts` pueda usar `satisfies TranslationKeys` para validar que no falta
+//   ninguna clave, sin forzar que el texto en inglés sea idéntico al español.
+type DeepStringify<T> = { [K in keyof T]: T[K] extends string ? string : DeepStringify<T[K]> };
+export type TranslationKeys = DeepStringify<typeof es>;

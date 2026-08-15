@@ -12,13 +12,15 @@ Antes de sugerir o ejecutar `pnpm add <paquete>`, verificar en [security.snyk.io
 ## Patrón arquitectónico obligatorio
 
 ```
-Router → Controller → Service → DB (Drizzle ORM)
+Router → Controller → Service → DB (Prisma ORM)
 ```
 
 - **Router**: solo registra rutas con `validate()` y `authenticate()`, ninguna lógica
 - **Controller**: solo extrae `req.body`/`req.params`, llama al service, responde con `res.json()`
 - **Service**: toda la lógica de negocio; accede a BD; lanza errores tipados
-- **DB**: solo mediante Drizzle ORM — nunca raw SQL sin parametrizar
+- **DB**: solo mediante Prisma Client (`db` en `src/db/index.ts`) — nunca raw SQL sin
+  parametrizar. Cambios de schema van en `prisma/schema.prisma` + `pnpm db:migrate:dev`,
+  nunca alterando la BD a mano.
 
 ## Manejo de errores
 

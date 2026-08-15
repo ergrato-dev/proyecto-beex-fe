@@ -1,0 +1,74 @@
+// Archivo: prisma/schema.prisma
+// Descripción: Definición de tablas de la base de datos usando Prisma ORM.
+// ¿Para qué? Centralizar el esquema de BD con tipos TypeScript generados automáticamente.
+// ¿Impacto? Este archivo es la fuente de verdad: la BD y el código TypeScript siempre
+//   están sincronizados gracias a los tipos generados por `prisma generate`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ¿Qué? La URL de conexión ya no vive aquí en Prisma 7 — se define en `prisma.config.ts`
+//   (CLI) y se pasa al `PrismaPg` adapter en `src/db/index.ts` (runtime).
+datasource db {
+  provider = "postgresql"
+}
+
+// ¿Qué? Tabla de usuarios del sistema.
+// ¿Para qué? Almacenar las cuentas de usuario con contraseña hasheada.
+// ¿Impacto? Tabla central del sistema — todos los flujos de auth dependen de ella.
+model User {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique @db.VarChar(255)
+  fullName       String   @map("full_name") @db.VarChar(255)
+  hashedPassword String   @map("hashed_password") @db.VarChar(255)
+  isActive       Boolean  @default(true) @map("is_active")
+  // ¿Qué? Flag de verificación de email — false hasta que el usuario haga clic en el enlace.
+  // ¿Para qué? Garantizar que el email registrado pertenece realmente al usuario (OWASP A07).
+  // ¿Impacto? Login retorna 403 si isEmailVerified es false.
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  // ¿Qué? Idioma preferido del usuario para la interfaz (i18n).
+  // ¿Para qué? Persistir la preferencia de idioma para restaurarla en cualquier dispositivo.
+  // ¿Impacto? El frontend lee este campo al iniciar sesión y aplica el idioma guardado.
+  locale    String   @default("es") @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+
+  @@map("users")
+}
+
+// ¿Qué? Tabla de tokens de recuperación de contraseña.
+// ¿Para qué? Gestionar el flujo de forgot-password con tokens de un solo uso.
+// ¿Impacto? Sin esta tabla, no hay recuperación de contraseña. Los tokens tienen
+//   expiración y se marcan como usados para prevenir reutilización.
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// ¿Qué? Tabla de tokens de verificación de email.
+// ¿Para qué? Gestionar el flujo de verify-email: token enviado por email, válido 24h, uso único.
+// ¿Impacto? Sin esta tabla, los usuarios no pueden verificar su email y no pueden hacer login.
+model EmailVerificationToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verification_tokens")
+}

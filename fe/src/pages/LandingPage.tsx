@@ -75,7 +75,7 @@ const techStack = [
   'Express.js 5',
   'TypeScript',
   'PostgreSQL 17',
-  'Drizzle ORM',
+  'Prisma ORM',
   'JWT',
   'bcryptjs',
   'Zod',

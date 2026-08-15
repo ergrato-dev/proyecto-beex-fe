@@ -1,0 +1,11 @@
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+
+# ¿Qué? esbuild queda anclado en 0.27.x por Vite/tsx pese a `pnpm update` — mismo patrón
+#   documentado en .github/copilot-instructions.md (CVE previo de esbuild vía drizzle-kit).
+# ¿Para qué? Forzar la versión parcheada (CVE GHSA-g7r4-m6w7-qqqr, low) sin esperar a que
+#   Vite/tsx suban su rango.
+overrides:
+  esbuild: 0.28.2
